@@ -1,7 +1,7 @@
-## ADS Lab 09 - PowerShell
+## AIT Lab 01 - Linux Backup
 
-**Author:** Müller Robin, Stéphane Teixeira Carvalho  
-**Date:** 2020-06-25
+**Author:** Müller Robin, Stéphane Teixeira Carvalho, Massaoudi Walid  
+**Date:** 2020-09-25
 
 ### Task 1: Prepare the backup disk
 ***1.1 Which disks and which partitions on these disks are visible?***  
@@ -11,8 +11,11 @@ ls: cannot access '/dev/hd*': No such file or directory
 ubuntu@mobile:~$ ls /dev/sd*
 /dev/sda  /dev/sda1
 ```
+With the commands show above, we can see that one disk is available and it as one partition. We can deduce that because we have a disk named **sda** and it has only one number.
+
 ***1.2 Which new files appeared? These represent the disk and its partitions you just attached.***  
 
+After the addition of a new disk, we can see that another disk is now available and his name is **sdb** as expected.
 ```bash
 ubuntu@mobile:~$ ls /dev/sd*
 /dev/sda  /dev/sda1  /dev/sdb
@@ -20,6 +23,9 @@ ubuntu@mobile:~$ ls /dev/sd*
 
 ***1.3 Create a partition table on the disk and create two partitions of equal size using the parted tool***
 
+Here are the different points of the manipulation :
+
+****1.3.1 & 1.3.2 Use the parted command and display the existing partitions with the print command****
 ```bash
 ubuntu@mobile:~$ sudo parted /dev/sdb
 [sudo] password for ubuntu:
@@ -33,6 +39,12 @@ Disk /dev/sdb: 17.2GB
 Sector size (logical/physical): 512B/512B
 Partition Table: unknown
 Disk Flags:
+```
+
+Has expected the disk is not recognised because it does not have a partition table.
+
+****1.3.3 & 1.3.4 Use the mktable command to create a partition table and display the free space with the command print free****
+```bash
 (parted) mktable                                                          
 New disk label type? msdos                                                
 (parted) print free                                                       
@@ -47,7 +59,11 @@ Number  Start   End     Size    Type  File system  Flags
 
 (parted)
 ```
+After the mktable we can see, with the print free command, that the disk can now have partition because it shows the space available to create partitions.
 
+****1.3.5 Creation of partitions****
+
+Here is the result fot the **first partition**.
 ```bash
 (parted) mkpart                                                     
 Partition type?  primary/extended? primary                                
@@ -70,7 +86,9 @@ Number  Start   End     Size    Type     File system  Flags
 
 (parted)
 ```
+After the `print free` we can see that the partition has been set correctly. The partition has the fat32 file system, is a primary type and ends at half the free space.
 
+Here is the result for the **second partition**.
 ```bash
 (parted) mkpart
 Partition type?  primary/extended? primary                                
@@ -93,11 +111,27 @@ Number  Start   End     Size    Type     File system  Flags
 (parted)
 ```
 
+As done with the previous parttion we used `print free` to check if the partition was correctly set. We can also see that the partition is correctly set.
+
+****1.3.6 Quit parted and verify that there are now two special files in /dev that correspond to the two partitions.****
+
+To verify if the two new special files were cretaed we used the `ls /dev/sd*`.
+```bash
+ubuntu@mobile:~$ ls /dev/sd*
+/dev/sda  /dev/sda1  /dev/sdb  /dev/sdb1  /dev/sdb2
+```
+
+We can see that the two partitions are now created because the **/dev/sdb** disk has now two more files that corresponds to the partition created before(**/dev/sdb1** and **/dev/sdb2**).
+
 ***1.4 Format the two partitions using the mkfs command***
 
+Here are the two commands done to completet this points.
 ```bash
 ubuntu@mobile:~$ sudo mkfs.vfat /dev/sdb1
 mkfs.fat 4.1 (2017-01-24)
+```
+
+```bash
 ubuntu@mobile:~$ sudo mkfs.ext4 /dev/sdb2
 mke2fs 1.44.1 (24-Mar-2018)
 Creating filesystem with 1048576 4k blocks and 262144 inodes
@@ -109,21 +143,19 @@ Allocating group tables: done
 Writing inode tables: done                            
 Creating journal (16384 blocks): done
 Writing superblocks and filesystem accounting information: done
-
-ubuntu@mobile:~$
 ```
 
 
 ***1.5 Create two empty directories in the /mnt directory as mount points, called backup1 and backup2. Mount the newly created file systems in these directories***
 
+To mount the files systems in the correct directory we used the command `mount device mountpoint`
+
 ```bash
 ubuntu@mobile:~$ sudo mount /dev/sdb1 /mnt/backup1
 ubuntu@mobile:~$ sudo mount /dev/sdb2 /mnt/backup2
-ubuntu@mobile:~$ ls /dev/sd*                                     
-/dev/sda  /dev/sda1  /dev/sdb  /dev/sdb1  /dev/sdb2
 ```
 
-***1.6 How much free space is available on these filesystems? Use the df command to find out. What does the -h option do?***
+***1.6 How much free space is available on these filesystems? Use the df command to find out.***
 
 ```bash
 ubuntu@mobile:~$ df -h /mnt/backup1
@@ -132,10 +164,10 @@ Filesystem      Size  Used Avail Use% Mounted on
 ubuntu@mobile:~$ df -h /mnt/backup2
 Filesystem      Size  Used Avail Use% Mounted on
 /dev/sdb2       3.9G   16M  3.7G   1% /mnt/backup2
-
-What does the -h option do?
-It can print size for humans in powers of 1024
-
 ```
+
+***What does the -h option do?***
+
+It can print size for humans in powers of 1024
 
 <div style="page-break-after: always;"></div>

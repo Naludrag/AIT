@@ -171,3 +171,22 @@ Filesystem      Size  Used Avail Use% Mounted on
 It can print size for humans in powers of 1024
 
 <div style="page-break-after: always;"></div>
+
+***Task 2: Perform backups using tar and zip***
+
+* Do a backup of a user's home directory to the backup disk (VFAT partition). Create a compressed archive. Do the files in the archive have a relative path so that you can restore them later to any place?  
+  We used the following command to backup the home directory :   
+  `tar -cvpzf /mnt/backup1/backup.tar.gz ~`  
+  -c is used to create a new archive file, -v to verbose, -p to preserve permissions, -z to compress with gzip and -f to specify the archive path.  
+  The files in the archive contain a relative path. We confirmed it by displaying its files.
+
+* List the content of the archive.  
+  `tar -ztf /mnt/backup1/backup.tar.gz`   
+  -z allows us to filter the archive through gzip, -t to list the content of the archive and -f to specify the archive's path.
+
+* Do a restore of the archive to a different place, say /tmp.  
+  `tar -zxvf /mnt/backup1/backup.tar.gz -C /tmp`  
+  Same options as before, -x is used to extract the archive.
+
+* Do an incremental backup that saves only files that were modified after, say, September 23, 2016, 10:42:33. Do this only for tar, not for zip.
+  `tar --listed-incremental=snapshot.file -cvzf backup.tar.gz -T <(find ~ -type f -newermt "2016-09-23 10:42:33")`

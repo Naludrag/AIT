@@ -172,56 +172,72 @@ It can print size for humans in powers of 1024
 
 <div style="page-break-after: always;"></div>
 
-***Task 2: Perform backups using tar and zip***
+### Task 2: Perform backups using tar and zip
 
-* Do a backup of a user's home directory to the backup disk (VFAT partition). Create a compressed archive. Do the files in the archive have a relative path so that you can restore them later to any place?  
+* Do a backup of a user's home directory to the backup disk (VFAT partition). Create a compressed archive. Do the files in the archive have a relative path so that you can restore them later to any place?
+
   We used the following command to backup the home directory :   
   `tar -cvpzf /mnt/backup1/backup.tar.gz ~`  
   -c is used to create a new archive file, -v to verbose, -p to preserve permissions, -z to compress with gzip and -f to specify the archive path.  
   The files in the archive contain a relative path. We confirmed it by displaying its files.
 
-
-  `sudo zip -r /mnt/backup1/backup.zip ~`
+  For the zip file we used the following command :  
+  `sudo zip -r /mnt/backup1/backup.zip ~`  
+  -r is used to add recursively add the files of the home directory. With this we have all the files from the home directory eaven the hidden ones.
 
 
 
 
 
 * List the content of the archive.  
+
   `tar -ztf /mnt/backup1/backup.tar.gz`   
   -z allows us to filter the archive through gzip, -t to list the content of the archive and -f to specify the archive's path.
 
-  `stephane@ubuntu:~$ unzip -l /mnt/backup1/backup.zip`
-Archive:  /mnt/backup1/backup.zip
-  Length      Date    Time    Name
----------  ---------- -----   ----
-        0  2020-09-23 06:25   home/stephane/
-     3771  2020-09-23 06:08   home/stephane/.bashrc
-      131  2020-09-23 06:13   home/stephane/.xinputrc
-        0  2020-09-23 06:12   home/stephane/Desktop/
-      807  2020-09-23 06:08   home/stephane/.profile
-        0  2020-09-23 06:12   home/stephane/Pictures/
-      954  2020-09-23 06:24   home/stephane/.ICEauthority
-        0  2020-09-23 06:25   home/stephane/.sudo_as_admin_successful
+  `unzip -l /mnt/backup1/backup.zip`  
+  -l allow us to unzip the file just to read the files in it.
+  Here is an example of the result for the command :
+  ```bash
+  stephane@ubuntu:~$ unzip -l /mnt/backup1/backup.zip
+  Archive:  /mnt/backup1/backup.zip
+    Length      Date    Time    Name
+  ---------  ---------- -----   ----
+          0  2020-09-23 06:25   home/stephane/
+       3771  2020-09-23 06:08   home/stephane/.bashrc
+        131  2020-09-23 06:13   home/stephane/.xinputrc
+          0  2020-09-23 06:12   home/stephane/Desktop/
+        807  2020-09-23 06:08   home/stephane/.profile
+          0  2020-09-23 06:12   home/stephane/Pictures/
+        954  2020-09-23 06:24   home/stephane/.ICEauthority
+          0  2020-09-23 06:25   home/stephane/.sudo_as_admin_successful
+          ...
+    ```
 
-* Do a restore of the archive to a different place, say /tmp.  
+* Do a restore of the archive to a different place, say `/tmp`.  
+
   `tar -zxvf /mnt/backup1/backup.tar.gz -C /tmp`  
   Same options as before, -x is used to extract the archive.
 
-  `unzip /mnt/backup1/backup.zip -d /tmp`
+  `unzip /mnt/backup1/backup.zip -d /tmp`  
+  We use the unzip command again but this time with the -d option to specify in which directory we would like to extract the file
 
 * Do an incremental backup that saves only files that were modified after, say, September 23, 2016, 10:42:33. Do this only for tar, not for zip.
   `tar --listed-incremental=snapshot.file -cvzf backup.tar.gz -T <(find ~ -type f -newermt "2016-09-23 10:42:33")`
 
 ### Task 3
 
-In this task you will examine how well the backup commands preserve file metadata. Consult the man pages and perform tests using tar and zip and examine whether you can restore:
+In this task you will examine how well the backup commands preserve file metadata.  
+Consult the man pages and perform tests using `tar` and `zip` and examine whether you can restore:
 
-the last modification time
-the permissions
-the owner
-In the lab report describe the tests you did and their results.
+- the last modification time
+- the permissions
+- the owner
 
+Here is how we tested the different commands to see if the result of a restoration :
+
+First here is the result for the `tar` command.
+
+```bash
 stephane@ubuntu:~$ ls -l /tmp/home/stephane/
 total 44
 drwxr-xr-x 2 stephane stephane 4096 sep 23 06:12 Desktop
@@ -233,24 +249,52 @@ drwxr-xr-x 2 stephane stephane 4096 sep 23 06:12 Pictures
 drwxr-xr-x 2 stephane stephane 4096 sep 23 06:12 Public
 drwxr-xr-x 2 stephane stephane 4096 sep 23 06:12 Templates
 drwxr-xr-x 2 stephane stephane 4096 sep 23 06:12 Videos
+```
 
+In the beginning we can see that in the `tmp` the files contains exactly the same structure as the hom directory.
 
+Then we decided to change the permissons, the owner and added a new file to change the last modification time for the `Music` directory. Here is the final result.
+```bash
 stephane@ubuntu:~$ ls -l /tmp/home/stephane/
 total 44
 drwxr-xr-x 2 stephane stephane 4096 sep 23 06:12 Desktop
 drwxr-xr-x 2 stephane stephane 4096 sep 23 06:12 Documents
 drwxr-xr-x 2 stephane stephane 4096 sep 23 06:12 Downloads
 -rw-r--r-- 1 stephane stephane 8980 sep 23 06:08 examples.desktop
-drwxrwxrwx 2 root     stephane 4096 sep 23 07:15 Music
+drwxrwxrwx 2 root     stephane 4096 sep 23 07:27 Music
 drwxr-xr-x 2 stephane stephane 4096 sep 23 06:12 Pictures
 drwxr-xr-x 2 stephane stephane 4096 sep 23 06:12 Public
 drwxr-xr-x 2 stephane stephane 4096 sep 23 06:12 Templates
 drwxr-xr-x 2 stephane stephane 4096 sep 23 06:12 Videos
+```
 
+After that we ran the command `tar -zxvf /mnt/backup1/backup.tar.gz -C /tmp` again and checked if the chnages that we made were still there and we can see that the changes were dropped and the restore of the is complete. We find the values from the backup again.
+
+```bash
+stephane@ubuntu:~$ ls -l /tmp/home/stephane/
+total 44
+drwxr-xr-x 2 stephane stephane 4096 sep 23 06:12 Desktop
+drwxr-xr-x 2 stephane stephane 4096 sep 23 06:12 Documents
+drwxr-xr-x 2 stephane stephane 4096 sep 23 06:12 Downloads
+-rw-r--r-- 1 stephane stephane 8980 sep 23 06:08 examples.desktop
+drwxr-xr-x 2 stephane stephane 4096 sep 23 06:12 Music
+drwxr-xr-x 2 stephane stephane 4096 sep 23 06:12 Pictures
+drwxr-xr-x 2 stephane stephane 4096 sep 23 06:12 Public
+drwxr-xr-x 2 stephane stephane 4096 sep 23 06:12 Templates
+drwxr-xr-x 2 stephane stephane 4096 sep 23 06:12 Videos
+```
+
+For the zip command we did the same procedure. Except that this time when we did the restore the directorykept the same permissons, owner and latest modification time. In this case the restore isn't "really" done.
+
+Here is the result of the unzip command and the result after the unzip :
+
+```bash
 stephane@ubuntu:~$ unzip /mnt/backup1/backup.zip -d /tmp
 Archive:  /mnt/backup1/backup.zip
 replace /tmp/home/stephane/.bashrc? [y]es, [n]o, [A]ll, [N]one, [r]ename: A
+```
 
+```bash
 stephane@ubuntu:~$ ls -l /tmp/home/stephane/
 total 44
 drwxr-xr-x 2 stephane stephane 4096 sep 23 06:12 Desktop
@@ -262,3 +306,4 @@ drwxr-xr-x 2 stephane stephane 4096 sep 23 06:12 Pictures
 drwxr-xr-x 2 stephane stephane 4096 sep 23 06:12 Public
 drwxr-xr-x 2 stephane stephane 4096 sep 23 06:12 Templates
 drwxr-xr-x 2 stephane stephane 4096 sep 23 06:12 Videos
+```

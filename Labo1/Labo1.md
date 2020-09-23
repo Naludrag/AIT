@@ -171,3 +171,5 @@ Filesystem      Size  Used Avail Use% Mounted on
 It can print size for humans in powers of 1024
 
 <div style="page-break-after: always;"></div>
+
+### Task 2: perform backups using tar and zip

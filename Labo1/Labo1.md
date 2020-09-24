@@ -310,7 +310,7 @@ drwxr-xr-x 2 stephane stephane 4096 sep 23 06:12 Videos
 ### Task 4
 In this task you will examine whether the backup commands preserve symbolic and hard links. Consult the man pages and perform tests using tar and zip.
 
-Firsful we need to remember that a hard link is a direct reference to a file via its inode. By using a hardlink, we can edit the original file’s contents or change his location and the hardlink will still point to the original file because its inode is still pointing to that file.However ,a Symbolic links are shortcuts that reference to a file instead of its inode value.
+Firsful, we need to remember that a hard link is a direct reference to a file via its inode.However,Symbolic links are shortcuts that reference to a file instead of its inode value.
 
 In the first step we created a file called  hardlinkedFile hard linked to the file  originalFileHard .the two others files are symbloc linked .
 

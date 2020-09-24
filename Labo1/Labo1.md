@@ -309,9 +309,10 @@ drwxr-xr-x 2 stephane stephane 4096 sep 23 06:12 Videos
 ```
 ### Task 4
 In this task you will examine whether the backup commands preserve symbolic and hard links. Consult the man pages and perform tests using tar and zip.
+
 Firsful we need to remember that a hard link is a direct reference to a file via its inode. By using a hardlink, we can edit the original file’s contents or change his location and the hardlink will still point to the original file because its inode is still pointing to that file.However ,a Symbolic links are shortcuts that reference to a file instead of its inode value.
 
-in the first step we created a file called  hardlinkedFile hard linked to the file  originalFileHard .the two others files are symbloc linked .
+In the first step we created a file called  hardlinkedFile hard linked to the file  originalFileHard .the two others files are symbloc linked .
 
 1.crating a hard link between two files:
 ```bash
@@ -320,7 +321,7 @@ osboxes@osboxes:~/Documents$ ln originalFileHard hardlinkedFile
  we can see that both files have now the same inode :
  ```bash
  osboxes@osboxes:~/Documents$ ls -i
-262340 hardlinkedFile    262342 originalsym
+262340 hardlinkedFile    262340 originalFileHard
 ```
 2.creating a symbolic link between two files :
 ```bash
@@ -337,7 +338,7 @@ drwxr-xr-x 15 osboxes osboxes 4096 Sep 23 11:34 ..
 -rw-r--r--  1 osboxes osboxes    0 Sep 23 11:54 originalsym
 lrwxrwxrwx  1 osboxes osboxes   11 Sep 23 11:55 symLinkedFile -> originalsym
 ```
-At the second step we perform a backup as the previous task using zip.
+In the second step we perform a backup as the previous task using zip.
 ```bash
 osboxes@osboxes:/mnt/backup1$ sudo zip -r /mnt/backup1/backup.zip ~
 ```
@@ -362,9 +363,10 @@ drwxr-xr-x 15 root root 4096 Sep 23 11:34 ..
 -rw-r--r--  1 root root    0 Sep 23 11:54 originalsym
 -rw-r--r--  1 root root    0 Sep 23 11:54 symLinkedFile
 ```
-At this point we can see clearly that the backup command zip  did not preserve the hard link (the two files have not the inode id ),neither the symbolic link .
+At this point we can see clearly that the backup command zip  did not preserve the hard link (the two files have not the same inode id ),neither the symbolic link .
 
 Now ,we will do the same backup-restore but using the tar command :
+
 1.Performing a backup :
 ```bash
 osboxes@osboxes:/$ sudo tar -cvpzf /mnt/backup1/backup.tar.gz ~

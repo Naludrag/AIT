@@ -224,7 +224,7 @@ It can print size for humans in powers of 1024
 * Do an incremental backup that saves only files that were modified after, say, September 23, 2016, 10:42:33. Do this only for tar, not for zip.
   `tar --listed-incremental=snapshot.file -cvzf backup.tar.gz -T <(find ~ -type f -newermt "2016-09-23 10:42:33")`
 
-### Task 3
+### Task 3 : Backup of file metadata
 
 In this task you will examine how well the backup commands preserve file metadata.  
 Consult the man pages and perform tests using `tar` and `zip` and examine whether you can restore:

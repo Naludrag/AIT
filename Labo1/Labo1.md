@@ -307,3 +307,86 @@ drwxr-xr-x 2 stephane stephane 4096 sep 23 06:12 Public
 drwxr-xr-x 2 stephane stephane 4096 sep 23 06:12 Templates
 drwxr-xr-x 2 stephane stephane 4096 sep 23 06:12 Videos
 ```
+### Task 4
+In this task you will examine whether the backup commands preserve symbolic and hard links. Consult the man pages and perform tests using tar and zip.
+
+Firsful, we need to remember that a hard link is a direct reference to a file via its inode.However,Symbolic links are shortcuts that reference to a file instead of its inode value.
+
+In the first step we created a file called  hardlinkedFile hard linked to the file  originalFileHard .the two others files are symbloc linked .
+
+1.crating a hard link between two files:
+```bash
+osboxes@osboxes:~/Documents$ ln originalFileHard hardlinkedFile
+```
+ we can see that both files have now the same inode :
+ ```bash
+ osboxes@osboxes:~/Documents$ ls -i
+262340 hardlinkedFile    262340 originalFileHard
+```
+2.creating a symbolic link between two files :
+```bash
+osboxes@osboxes:~/Documents$ ln -s originalsym  symLinkedFile
+```
+ we can see that the symLinkedFile is linked to the originalsym file:
+ ```bash
+ osboxes@osboxes:~/Documents$ ls -la
+total 8
+drwxr-xr-x  2 osboxes osboxes 4096 Sep 23 11:55 .
+drwxr-xr-x 15 osboxes osboxes 4096 Sep 23 11:34 ..
+-rw-r--r--  2 osboxes osboxes    0 Sep 23 11:53 hardlinkedFile
+-rw-r--r--  2 osboxes osboxes    0 Sep 23 11:53 originalFileHard
+-rw-r--r--  1 osboxes osboxes    0 Sep 23 11:54 originalsym
+lrwxrwxrwx  1 osboxes osboxes   11 Sep 23 11:55 symLinkedFile -> originalsym
+```
+In the second step we perform a backup as the previous task using zip.
+```bash
+osboxes@osboxes:/mnt/backup1$ sudo zip -r /mnt/backup1/backup.zip ~
+```
+Simply now we do  a restore of the archive to /tmp using the command :
+```bash
+osboxes@osboxes:/mnt/backup1$ sudo unzip /mnt/backup1/backup.zip  -d /tmp
+```
+
+the result is predictable ,by cheking the content of our restored backup :
+```bash
+osboxes@osboxes:/tmp/home/osboxes/Documents$ ls -i
+4588765 hardlinkedFile    4588766 originalsym
+4588764 originalFileHard  4588763 symLinkedFile
+```
+```bash
+osboxes@osboxes:/tmp/home/osboxes/Documents$ ls -la
+total 8
+drwxr-xr-x  2 root root 4096 Sep 23 11:55 .
+drwxr-xr-x 15 root root 4096 Sep 23 11:34 ..
+-rw-r--r--  1 root root    0 Sep 23 11:53 hardlinkedFile
+-rw-r--r--  1 root root    0 Sep 23 11:53 originalFileHard
+-rw-r--r--  1 root root    0 Sep 23 11:54 originalsym
+-rw-r--r--  1 root root    0 Sep 23 11:54 symLinkedFile
+```
+At this point we can see clearly that the backup command zip  did not preserve the hard link (the two files have not the same inode id ),neither the symbolic link .
+
+Now ,we will do the same backup-restore but using the tar command :
+
+1.Performing a backup :
+```bash
+osboxes@osboxes:/$ sudo tar -cvpzf /mnt/backup1/backup.tar.gz ~
+```
+2.Restore the archive to /tmp:
+```bash
+osboxes@osboxes:/mnt/backup1$ sudo tar -zxvf /mnt/backup1/backup.tar.gz -C /tmp
+```
+As well as the previous task the backup command tar preserve both the hard link and the symblic one .this is the result :
+
+```bash
+osboxes@osboxes:/tmp/home/osboxes/Documents$ ls -la
+total 8
+drwxr-xr-x  2 osboxes osboxes 4096 Sep 23 11:55 .
+drwxr-xr-x 15 osboxes osboxes 4096 Sep 23 11:34 ..
+-rw-r--r--  2 osboxes osboxes    0 Sep 23 11:53 hardlinkedFile
+-rw-r--r--  2 osboxes osboxes    0 Sep 23 11:53 originalFileHard
+-rw-r--r--  1 osboxes osboxes    0 Sep 23 11:54 originalsym
+lrwxrwxrwx  1 osboxes osboxes   11 Sep 23 11:55 symLinkedFile -> originalsym
+osboxes@osboxes:/tmp/home/osboxes/Documents$ ls -i
+4718659 hardlinkedFile    4718660 originalsym
+4718659 originalFileHard  4718658 symLinkedFile
+```

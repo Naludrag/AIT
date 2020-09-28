@@ -1,21 +1,37 @@
 ## AIT Lab 01 - Linux Backup
 
 **Author:** Müller Robin, Stéphane Teixeira Carvalho, Massaoudi Walid  
-**Date:** 2020-09-25
+**Date:** 2020-09-30
 
 ### Task 1: Prepare the backup disk
-***1.1 Which disks and which partitions on these disks are visible?***  
+***1.1 Which disks and which partitions on these disks are visible? Which partitions are mounted?***  
 ```bash
 ubuntu@mobile:~$ ls /dev/hd*
 ls: cannot access '/dev/hd*': No such file or directory
 ubuntu@mobile:~$ ls /dev/sd*
 /dev/sda  /dev/sda1
 ```
-With the commands show above, we can see that one disk is available and it as one partition. We can deduce that because we have a disk named **sda** and it has only one number.
+With the commands show above, we can see that one disk is available and it as one partition. We can deduce that, because we have a disk named **sda** and it has only one number. The number indicates the number of partitions.
+
+```bash
+stephane@ubuntu:~$ mount
+sysfs on /sys type sysfs (rw,nosuid,nodev,noexec,relatime)
+proc on /proc type proc (rw,nosuid,nodev,noexec,relatime)
+udev on /dev type devtmpfs (rw,nosuid,relatime,size=1977244k,nr_inodes=494311,mode=755)
+devpts on /dev/pts type devpts (rw,nosuid,noexec,relatime,gid=5,mode=620,ptmxmode=000)
+tmpfs on /run type tmpfs (rw,nosuid,noexec,relatime,size=400228k,mode=755)
+/dev/sda1 on / type ext4 (rw,relatime,errors=remount-ro)
+securityfs on /sys/kernel/security type securityfs (rw,nosuid,nodev,noexec,relatime)
+tmpfs on /dev/shm type tmpfs (rw,nosuid,nodev)
+tmpfs on /run/lock type tmpfs (rw,nosuid,nodev,noexec,relatime,size=5120k)
+...
+```
+
+With the mount command we can see all the mounted partitions. We can see that the partition **sda1** is mounted and has a filesystem of type ext4 for instance.
 
 ***1.2 Which new files appeared? These represent the disk and its partitions you just attached.***  
 
-After the addition of a new disk, we can see that another disk is now available and his name is **sdb** as expected.
+After the addition of a new disk, we can see that another disk is now available and his name is **sdb** as expected. When a new disk is added the letter of the disk will be incremented.
 ```bash
 ubuntu@mobile:~$ ls /dev/sd*
 /dev/sda  /dev/sda1  /dev/sdb
@@ -59,11 +75,18 @@ Number  Start   End     Size    Type  File system  Flags
 
 (parted)
 ```
-After the mktable we can see, with the print free command, that the disk can now have partition because it shows the space available to create partitions.
+After the mktable we can see, with the print free command, that the disk can now have partition because we initialized the disk with a partition tabel. We can now see the space available with the print free command.
 
 ****1.3.5 Creation of partitions****
 
 Here is the result fot the **first partition**.
+Here is a quick reminder of what the partition should be :
+
+- be a primary partition
+- have a file system type of fat32
+- start at 0
+- end at about half the free space.
+
 ```bash
 (parted) mkpart                                                     
 Partition type?  primary/extended? primary                                
@@ -89,6 +112,13 @@ Number  Start   End     Size    Type     File system  Flags
 After the `print free` we can see that the partition has been set correctly. The partition has the fat32 file system, is a primary type and ends at half the free space.
 
 Here is the result for the **second partition**.
+The specifiations:
+
+- be a primary partition
+- have a file system type of ext4
+- start at half the free space
+- end at the free space.
+
 ```bash
 (parted) mkpart
 Partition type?  primary/extended? primary                                
@@ -115,7 +145,7 @@ As done with the previous parttion we used `print free` to check if the partitio
 
 ****1.3.6 Quit parted and verify that there are now two special files in /dev that correspond to the two partitions.****
 
-To verify if the two new special files were cretaed we used the `ls /dev/sd*`.
+To verify if the two new special files were created we used the command `ls /dev/sd*`.
 ```bash
 ubuntu@mobile:~$ ls /dev/sd*
 /dev/sda  /dev/sda1  /dev/sdb  /dev/sdb1  /dev/sdb2
@@ -125,12 +155,15 @@ We can see that the two partitions are now created because the **/dev/sdb** disk
 
 ***1.4 Format the two partitions using the mkfs command***
 
-Here are the two commands done to completet this points.
+Here are the two commands done to complete this point.
+
+First the configuration of the vfat partition
 ```bash
 ubuntu@mobile:~$ sudo mkfs.vfat /dev/sdb1
 mkfs.fat 4.1 (2017-01-24)
 ```
 
+Secondly, the configuration of the ext4 command
 ```bash
 ubuntu@mobile:~$ sudo mkfs.ext4 /dev/sdb2
 mke2fs 1.44.1 (24-Mar-2018)
@@ -168,7 +201,7 @@ Filesystem      Size  Used Avail Use% Mounted on
 
 ***What does the -h option do?***
 
-It can print size for humans in powers of 1024
+It can print the size for humans in powers of 1024.
 
 <div style="page-break-after: always;"></div>
 
@@ -183,16 +216,35 @@ It can print size for humans in powers of 1024
 
   For the zip file we used the following command :  
   `sudo zip -r /mnt/backup1/backup.zip ~`  
-  -r is used to add recursively add the files of the home directory. With this we have all the files from the home directory eaven the hidden ones.
-
-
-
-
+  -r is used recursively add the files of the home directory. With this we have all the files from the home directory eaven the hidden ones. The zip contains also the relative path of the directory such as `home/user`
 
 * List the content of the archive.  
 
   `tar -ztf /mnt/backup1/backup.tar.gz`   
   -z allows us to filter the archive through gzip, -t to list the content of the archive and -f to specify the archive's path.
+
+  Here is a part of the command :
+  ```bash
+  stephane@ubuntu:~$ tar -ztf /mnt/backup1/backup.tar.gz
+home/stephane/
+home/stephane/snap/
+home/stephane/snap/nmap/
+home/stephane/snap/nmap/current
+home/stephane/snap/nmap/1356/
+home/stephane/snap/nmap/common/
+home/stephane/.bashrc
+home/stephane/.zenmap/
+home/stephane/.zenmap/zenmap_version
+home/stephane/.zenmap/zenmap.conf
+home/stephane/.zenmap/zenmap.db
+home/stephane/.zenmap/target_list.txt
+home/stephane/.zenmap/scan_profile.usp
+home/stephane/.zenmap/recent_scans.txt
+home/stephane/.xinputrc
+home/stephane/Desktop/
+home/stephane/.profile
+...
+  ```
 
   `unzip -l /mnt/backup1/backup.zip`  
   -l allow us to unzip the file just to read the files in it.
@@ -222,6 +274,7 @@ It can print size for humans in powers of 1024
   We use the unzip command again but this time with the -d option to specify in which directory we would like to extract the file
 
 * Do an incremental backup that saves only files that were modified after, say, September 23, 2016, 10:42:33. Do this only for tar, not for zip.
+
   `tar --listed-incremental=snapshot.file -cvzf backup.tar.gz -T <(find ~ -type f -newermt "2016-09-23 10:42:33")`
 
 ### Task 3 : Backup of file metadata
@@ -251,7 +304,7 @@ drwxr-xr-x 2 stephane stephane 4096 sep 23 06:12 Templates
 drwxr-xr-x 2 stephane stephane 4096 sep 23 06:12 Videos
 ```
 
-In the beginning we can see that in the `tmp` the files contains exactly the same structure as the hom directory.
+In the beginning we can see that in the `tmp` the files contains exactly the same structure as the backup of the home directory.
 
 Then we decided to change the permissons, the owner and added a new file to change the last modification time for the `Music` directory. Here is the final result.
 ```bash
@@ -268,7 +321,7 @@ drwxr-xr-x 2 stephane stephane 4096 sep 23 06:12 Templates
 drwxr-xr-x 2 stephane stephane 4096 sep 23 06:12 Videos
 ```
 
-After that we ran the command `tar -zxvf /mnt/backup1/backup.tar.gz -C /tmp` again and checked if the chnages that we made were still there and we can see that the changes were dropped and the restore of the is complete. We find the values from the backup again.
+After that we ran the command `tar -zxvf /mnt/backup1/backup.tar.gz -C /tmp` again and checked if the changes that we made were still there and we can see that the changes were dropped and the restore of the home directory is complete. We find the values from the backup again.
 
 ```bash
 stephane@ubuntu:~$ ls -l /tmp/home/stephane/
@@ -284,7 +337,7 @@ drwxr-xr-x 2 stephane stephane 4096 sep 23 06:12 Templates
 drwxr-xr-x 2 stephane stephane 4096 sep 23 06:12 Videos
 ```
 
-For the zip command we did the same procedure. Except that this time when we did the restore the directorykept the same permissons, owner and latest modification time. In this case the restore isn't "really" done.
+For the zip command we did the same procedure. Except that this time when we did the restore the directory kept the same permissons, owner and latest modification time. In this case the restore isn't "really" done. The metadata remains the same.
 
 Here is the result of the unzip command and the result after the unzip :
 
@@ -307,47 +360,51 @@ drwxr-xr-x 2 stephane stephane 4096 sep 23 06:12 Public
 drwxr-xr-x 2 stephane stephane 4096 sep 23 06:12 Templates
 drwxr-xr-x 2 stephane stephane 4096 sep 23 06:12 Videos
 ```
-### Task 4
+### Task 4 : Symbolic and hard links
 In this task you will examine whether the backup commands preserve symbolic and hard links. Consult the man pages and perform tests using tar and zip.
 
-Firsful, we need to remember that a hard link is a direct reference to a file via its inode.However,Symbolic links are shortcuts that reference to a file instead of its inode value.
+First, we need to remember that a hard link is a direct reference to a file via its inode. However, Symbolic links are shortcuts that reference to a file instead of its inode value.
 
-In the first step we created a file called  hardlinkedFile hard linked to the file  originalFileHard .the two others files are symbloc linked .
+In the first step, we created a file called **hardlinkedFile** hard linked to the file **originalFileHard**. Then we created two others files with symbolic links.
 
-1.crating a hard link between two files:
+Here is the creation of the files :
+
+1. Creating a hard link between two files:
 ```bash
 osboxes@osboxes:~/Documents$ ln originalFileHard hardlinkedFile
 ```
- we can see that both files have now the same inode :
+We can see that both files have now the same inode :
  ```bash
  osboxes@osboxes:~/Documents$ ls -i
 262340 hardlinkedFile    262340 originalFileHard
 ```
-2.creating a symbolic link between two files :
+2. Creating a symbolic link between two files :
 ```bash
 osboxes@osboxes:~/Documents$ ln -s originalsym  symLinkedFile
 ```
- we can see that the symLinkedFile is linked to the originalsym file:
- ```bash
- osboxes@osboxes:~/Documents$ ls -la
-total 8
-drwxr-xr-x  2 osboxes osboxes 4096 Sep 23 11:55 .
-drwxr-xr-x 15 osboxes osboxes 4096 Sep 23 11:34 ..
--rw-r--r--  2 osboxes osboxes    0 Sep 23 11:53 hardlinkedFile
--rw-r--r--  2 osboxes osboxes    0 Sep 23 11:53 originalFileHard
--rw-r--r--  1 osboxes osboxes    0 Sep 23 11:54 originalsym
-lrwxrwxrwx  1 osboxes osboxes   11 Sep 23 11:55 symLinkedFile -> originalsym
-```
-In the second step we perform a backup as the previous task using zip.
+ We can see that the symLinkedFile is linked to the originalsym file:
+
+  ```bash
+  osboxes@osboxes:~/Documents$ ls -la
+  total 8
+  drwxr-xr-x  2 osboxes osboxes 4096 Sep 23 11:55 .
+  drwxr-xr-x 15 osboxes osboxes 4096 Sep 23 11:34 ..
+  -rw-r--r--  2 osboxes osboxes    0 Sep 23 11:53 hardlinkedFile
+  -rw-r--r--  2 osboxes osboxes    0 Sep 23 11:53 originalFileHard
+  -rw-r--r--  1 osboxes osboxes    0 Sep 23 11:54 originalsym
+  lrwxrwxrwx  1 osboxes osboxes   11 Sep 23 11:55 symLinkedFile -> originalsym
+  ```
+
+In the second step, we perform a backup as the previous task using zip.
 ```bash
 osboxes@osboxes:/mnt/backup1$ sudo zip -r /mnt/backup1/backup.zip ~
 ```
-Simply now we do  a restore of the archive to /tmp using the command :
+Simply now we do a restore of the archive to **/tmp** using the unzip command :
 ```bash
 osboxes@osboxes:/mnt/backup1$ sudo unzip /mnt/backup1/backup.zip  -d /tmp
 ```
 
-the result is predictable ,by cheking the content of our restored backup :
+The result is predictable, by checking the content of our restored backup :
 ```bash
 osboxes@osboxes:/tmp/home/osboxes/Documents$ ls -i
 4588765 hardlinkedFile    4588766 originalsym
@@ -363,18 +420,19 @@ drwxr-xr-x 15 root root 4096 Sep 23 11:34 ..
 -rw-r--r--  1 root root    0 Sep 23 11:54 originalsym
 -rw-r--r--  1 root root    0 Sep 23 11:54 symLinkedFile
 ```
-At this point we can see clearly that the backup command zip  did not preserve the hard link (the two files have not the same inode id ),neither the symbolic link .
+At this point we can clearly see that the backup command zip did not preserve the hard link (the two files have not the same inode id ), neither the symbolic link.
 
-Now ,we will do the same backup-restore but using the tar command :
+Now, we will do the same backup-restore but using the tar command :
 
-1.Performing a backup :
+1. Performing a backup :
 ```bash
 osboxes@osboxes:/$ sudo tar -cvpzf /mnt/backup1/backup.tar.gz ~
 ```
-2.Restore the archive to /tmp:
+2. Restore the archive to /tmp:
 ```bash
 osboxes@osboxes:/mnt/backup1$ sudo tar -zxvf /mnt/backup1/backup.tar.gz -C /tmp
 ```
+
 As well as the previous task the backup command tar preserve both the hard link and the symblic one .this is the result :
 
 ```bash

@@ -11,7 +11,7 @@ ls: cannot access '/dev/hd*': No such file or directory
 ubuntu@mobile:~$ ls /dev/sd*
 /dev/sda  /dev/sda1
 ```
-With the commands show above, we can see that one disk is available and it as one partition. We can deduce that, because we have a disk named **sda** and it has only one number. The number indicates the number of partitions.
+With the commands shown above, we can see that one disk is available and it has one partition. We can deduce that, because the disk is named **sda** and it has only one number. The number indicates the number of the partition.
 
 ```bash
 stephane@ubuntu:~$ mount
@@ -57,7 +57,7 @@ Partition Table: unknown
 Disk Flags:
 ```
 
-Has expected the disk is not recognised because it does not have a partition table.
+As expected, the disk is not recognized because it does not have a partition table.
 
 ****1.3.3 & 1.3.4 Use the mktable command to create a partition table and display the free space with the command print free****
 ```bash
@@ -75,11 +75,11 @@ Number  Start   End     Size    Type  File system  Flags
 
 (parted)
 ```
-After the mktable we can see, with the print free command, that the disk can now have partition because we initialized the disk with a partition tabel. We can now see the space available with the print free command.
+After the mktable we can see, with the print free command, that the disk can now have partitions because we initialized the disk with a partition table. We can now see the space available with the print free command.
 
 ****1.3.5 Creation of partitions****
 
-Here is the result fot the **first partition**.
+Here is the result for the **first partition**.
 Here is a quick reminder of what the partition should be :
 
 - be a primary partition
@@ -111,8 +111,8 @@ Number  Start   End     Size    Type     File system  Flags
 ```
 After the `print free` we can see that the partition has been set correctly. The partition has the fat32 file system, is a primary type and ends at half the free space.
 
-Here is the result for the **second partition**.
-The specifiations:
+Here is the result for the **second partition** .  
+The specifications:
 
 - be a primary partition
 - have a file system type of ext4
@@ -141,7 +141,7 @@ Number  Start   End     Size    Type     File system  Flags
 (parted)
 ```
 
-As done with the previous parttion we used `print free` to check if the partition was correctly set. We can also see that the partition is correctly set.
+As done with the previous partition, we used `print free` to check if the partition was correctly set. We can also see that it is indeed the case.
 
 ****1.3.6 Quit parted and verify that there are now two special files in /dev that correspond to the two partitions.****
 
@@ -151,19 +151,19 @@ ubuntu@mobile:~$ ls /dev/sd*
 /dev/sda  /dev/sda1  /dev/sdb  /dev/sdb1  /dev/sdb2
 ```
 
-We can see that the two partitions are now created because the **/dev/sdb** disk has now two more files that corresponds to the partition created before(**/dev/sdb1** and **/dev/sdb2**).
+We can see that the two partitions are now created because the **/dev/sdb** disk has now two more files that correspond to the partition created before(**/dev/sdb1** and **/dev/sdb2**).
 
 ***1.4 Format the two partitions using the mkfs command***
 
-Here are the two commands done to complete this point.
+Below are the two commands used to complete this part.
 
-First the configuration of the vfat partition
+Firstly, the configuration of the vfat partition
 ```bash
 ubuntu@mobile:~$ sudo mkfs.vfat /dev/sdb1
 mkfs.fat 4.1 (2017-01-24)
 ```
 
-Secondly, the configuration of the ext4 command
+Secondly, the configuration of the ext4 partition
 ```bash
 ubuntu@mobile:~$ sudo mkfs.ext4 /dev/sdb2
 mke2fs 1.44.1 (24-Mar-2018)
@@ -201,7 +201,7 @@ Filesystem      Size  Used Avail Use% Mounted on
 
 ***What does the -h option do?***
 
-It can print the size for humans in powers of 1024.
+It can print the size for humans in powers of 1024 (i.e in KiB, MiB, GiB, ..).
 
 <div style="page-break-after: always;"></div>
 
@@ -279,7 +279,7 @@ home/stephane/.profile
 * Do a restore of the archive to a different place, say `/tmp`.  
 
   `tar -zxvf /mnt/backup1/backup.tar.gz -C /tmp`  
-  Same options as before, -x is used to extract the archive.
+  Same options as before, -x is used to extract the archive, -C to specify the output directory.
 
   `unzip /mnt/backup1/backup.zip -d /tmp`  
   We use the unzip command again but this time with the -d option to specify in which directory we would like to extract the file
@@ -297,7 +297,7 @@ Consult the man pages and perform tests using `tar` and `zip` and examine whethe
 - the permissions
 - the owner
 
-Here is how we tested the different commands to see if the result of a restoration :
+Here is how we tested the different commands to see the result of a restoration :
 
 First here is the result for the `tar` command.
 
@@ -315,9 +315,9 @@ drwxr-xr-x 2 stephane stephane 4096 sep 23 06:12 Templates
 drwxr-xr-x 2 stephane stephane 4096 sep 23 06:12 Videos
 ```
 
-In the beginning we can see that in the `tmp` the files contains exactly the same structure as the backup of the home directory.
+In the beginning we can see that the files in `/tmp` contain exactly the same structure as the backup of the home directory.
 
-Then we decided to change the permissons, the owner and added a new file to change the last modification time for the `Music` directory. Here is the final result.
+Then we decided to change the permissions, the owner and added a new file to change the last modification time for the `Music` directory. Here is the final result.
 ```bash
 stephane@ubuntu:~$ ls -l /tmp/home/stephane/
 total 44

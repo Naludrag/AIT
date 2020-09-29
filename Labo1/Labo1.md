@@ -210,18 +210,29 @@ It can print the size for humans in powers of 1024.
 * Do a backup of a user's home directory to the backup disk (VFAT partition). Create a compressed archive. Do the files in the archive have a relative path so that you can restore them later to any place?
 
   We used the following command to backup the home directory :   
-  `tar -cvpzf /mnt/backup1/backup.tar.gz ~`  
-  -c is used to create a new archive file, -v to verbose, -p to preserve permissions, -z to compress with gzip and -f to specify the archive path.  
+  `sudo tar -cvpzf /mnt/backup1/backup.tar.gz ~`  
+  - -c is used to create a new archive file
+  - -v to verbose
+  - -p to preserve permissions
+  - -z to compress with gzip
+  - -f to specify the archive path.  
+
   The files in the archive contain a relative path. We confirmed it by displaying its files.
 
   For the zip file we used the following command :  
   `sudo zip -r /mnt/backup1/backup.zip ~`  
-  -r is used recursively add the files of the home directory. With this we have all the files from the home directory eaven the hidden ones. The zip contains also the relative path of the directory such as `home/user`
+  - -r is used recursively add the files of the home directory.
+
+  With this we have all the files from the home directory eaven the hidden ones. The zip contains also the relative path of the directory such as `home/user`
+
+  In both command we had to use **sudo** because if not we could not write in the `/mnt/backup1` folder. Due to his permissons.
 
 * List the content of the archive.  
 
   `tar -ztf /mnt/backup1/backup.tar.gz`   
-  -z allows us to filter the archive through gzip, -t to list the content of the archive and -f to specify the archive's path.
+  - -z allows us to filter the archive through gzip
+  - -t to list the content of the archive
+  - -f to specify the archive's path.
 
   Here is a part of the command :
   ```bash
@@ -247,7 +258,7 @@ home/stephane/.profile
   ```
 
   `unzip -l /mnt/backup1/backup.zip`  
-  -l allow us to unzip the file just to read the files in it.
+  -l allow us to unzip the file just to read the files in it.  
   Here is an example of the result for the command :
   ```bash
   stephane@ubuntu:~$ unzip -l /mnt/backup1/backup.zip
@@ -321,7 +332,9 @@ drwxr-xr-x 2 stephane stephane 4096 sep 23 06:12 Templates
 drwxr-xr-x 2 stephane stephane 4096 sep 23 06:12 Videos
 ```
 
-After that we ran the command `tar -zxvf /mnt/backup1/backup.tar.gz -C /tmp` again and checked if the changes that we made were still there and we can see that the changes were dropped and the restore of the home directory is complete. We find the values from the backup again.
+After that we ran the command `sudo tar -zxvf /mnt/backup1/backup.tar.gz -C /tmp` again and checked if the changes that we made were still there and we can see that the changes were dropped and the restore of the home directory is complete. We find the values from the backup again.
+
+If the command is ran without the **sudo** command we found out that the metadata did not change in that case.
 
 ```bash
 stephane@ubuntu:~$ ls -l /tmp/home/stephane/
@@ -337,12 +350,12 @@ drwxr-xr-x 2 stephane stephane 4096 sep 23 06:12 Templates
 drwxr-xr-x 2 stephane stephane 4096 sep 23 06:12 Videos
 ```
 
-For the zip command we did the same procedure. Except that this time when we did the restore the directory kept the same permissons, owner and latest modification time. In this case the restore isn't "really" done. The metadata remains the same.
+For the **zip** command we did the same procedure. Except that this time when we did the restore the directory kept the same permissons, owner and latest modification time. In this case the restore isn't "really" done. The metadata remains the same.
 
 Here is the result of the unzip command and the result after the unzip :
 
 ```bash
-stephane@ubuntu:~$ unzip /mnt/backup1/backup.zip -d /tmp
+stephane@ubuntu:~$ sudo unzip /mnt/backup1/backup.zip -d /tmp
 Archive:  /mnt/backup1/backup.zip
 replace /tmp/home/stephane/.bashrc? [y]es, [n]o, [A]ll, [N]one, [r]ename: A
 ```

@@ -288,7 +288,13 @@ Archive:  /mnt/backup1/backup.zip
 
 * Do an incremental backup that saves only files that were modified after, say, September 23, 2016, 10:42:33. Do this only for tar, not for zip.
 
-  `tar --listed-incremental=snapshot.file -cvzf backup.tar.gz -T <(find ~ -type f -newermt "2016-09-23 10:42:33")`
+  `tar --listed-incremental=/tmp/snapshot.file -cvpzf backup.tar.gz -T <(find ~ -type f -newermt "2016-09-23 10:42:33")`  
+  - `cvpzf` were already explained.
+  - `-T` is used to specify the files to include in the backup.
+  - `--listed-incremental` contains the path of a file used to determine which files were changed since  the last incremental backup.
+  - The find command list the files (`-type -f`) in the home directory that were modified after September 23, 2016, 10:42:33 (`-newermt "2016-09-23 10:42:33`).
+
+
 
 ### Task 3 : Backup of file metadata
 

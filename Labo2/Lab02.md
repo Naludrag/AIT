@@ -404,8 +404,49 @@ In this task you will use the remote machine as backup destination.
 
 Put the full commands for each step and the output (shortened if too long) into the lab report.
 
-Create a backup directory on the remote machine as described in Task 1 so that your user can read/write.
+1. Create a backup directory on the remote machine as described in Task 1 so that your user can read/write.  
+We simply created a new folder on the remote server, the permissions were already set properly as we can see below:
+```bash
+robin.muller@ip-172-31-35-19:~$ mkdir robin.muller_backup
+robin.muller@ip-172-31-35-19:~$ ls -l
+total 4
+drwxrwxr-x 2 robin.muller robin.muller 4096 Sep 30 15:19 robin.muller_backup
+```
 
-Repeat the full backup and the incremental backup of task 1, but with the backup going to the remote machine over SSH. In the rsync command you need to prefix the destination parameter with <task_3_shortcut>: to tell rsync to use SSH to transfer the data to the remote machine.
+2. Repeat the full backup and the incremental backup of task 1, but with the backup going to the remote machine over SSH. In the `rsync` command you need to prefix the destination parameter with `<task_3_shortcut>`: to tell `rsync` to use SSH to transfer the data to the remote machine.  
+```bash
+$ rsync -av "/home/rmuller/Calibre Library" ait:~/robin.muller_backup/$(date -u "+%Y-%m-%d-%H%M%S")
+sending incremental file list
+created directory robin.muller_backup/2020-09-30-155118
+Calibre Library/
+Calibre Library/metadata.db
+Calibre Library/metadata_db_prefs_backup.json
+Calibre Library/Cixin Liu/
+Calibre Library/Cixin Liu/The Three-Body Problem (4)/
+Calibre Library/Cixin Liu/The Three-Body Problem (4)/The Three-Body Problem - Cixin Liu.mobi
+...
+sent 11,643,655 bytes  received 478 bytes  423,423.02 bytes/sec
+total size is 11,638,898  speedup is 1.00
+```
+Doing an incremental backup without modifying a file gives the following result:  
+```bash
+$ rsync -av --delete --link-dest=~/robin.muller_backup/2020-09-30-155118 "/home/rmuller/Calibre Library" ait:~/robin.muller_backup/$(date -u "+%Y-%m-%d-%H%M%S")
+sending incremental file list
+created directory /home/robin.muller/robin.muller_backup/2020-09-30-161222
+sent 1,176 bytes  received 104 bytes  62.44 bytes/sec
+total size is 11,638,898  speedup is 9,092.89
+```  
+After modifying a few files, we ran an incremental rsync backup again:
+```bash
+$ rsync -av --delete --link-dest=~/robin.muller_backup/2020-09-30-161222 "/home/rmuller/Calibre Library" ait:~/robin.muller_backup/$(date -u "+%Y-%m-%d-%H%M%S")
+sending incremental file list
+created directory /home/robin.muller/robin.muller_backup/2020-09-30-161818
+Calibre Library/
+Calibre Library/metadata.db
+Calibre Library/Cixin Liu/The Three-Body Problem (4)/metadata.opf
+Calibre Library/James S. A. Corey/Expanse 05 - Nemesis Games (2)/metadata.opf
+sent 16,275 bytes  received 3,753 bytes  635.81 bytes/sec
+total size is 11,638,944  speedup is 581.13
+```
 
-Optional: Using a network monitoring tool on your local Linux machine like bmon observe how much network traffic rsync is causing.
+3. Optional: Using a network monitoring tool on your local Linux machine like `bmon` observe how much network traffic `rsync` is causing.  

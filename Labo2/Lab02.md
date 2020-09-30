@@ -9,7 +9,7 @@
 
 * Perform backups to a remote system
 
-###TASK 1: LOCAL SYNC
+### TASK 1: LOCAL SYNC
 In this task you will create incremental backups of a home directory by using file synchronization and file system snapshots. To store the backup you will use the backup disk you partitioned in the previous lab.
 
 Put the full commands for each step and the output (shortened if too long) into the lab report.
@@ -53,7 +53,7 @@ How much disk space is used by the backup directory?
 
 Delete the initial full backup. What happens to the files in the incremental backup that were hardlinked to the files of the full backup?
 
-###TASK 2: ACCESS THE VM WITH SSH FOR REMOTE LOGIN
+### TASK 2: ACCESS THE VM WITH SSH FOR REMOTE LOGIN
 In this task you will use SSH to easily log into a remote virtual machine in a public cloud that will server as a backup destination in the next task.
 
 The remote machine has URL address ec2-3-134-84-63.us-east-2.compute.amazonaws.com (From Local Network or VPN).
@@ -65,7 +65,7 @@ Your account is configured to accept login via SSH using the password : toortoor
 osboxes@osboxes:~$  ssh walid.massaoudi@ec2-3-134-84-63.us-east-2.compute.amazonaws.com
 ```
 
-###TASK 3: SSH AUTHENTICATION
+### TASK 3: SSH AUTHENTICATION
 SSH authentication by password ?!? Lol ! let's change it !
 
 Don't forrget to put the configuration and the full commands and the output (shortened if too long) for each step into the lab report.
@@ -168,7 +168,7 @@ Last login: Wed Sep 30 14:12:47 2020 from 193.134.219.71
 ```
 You can find help in the document "ADS Lc01b Accès à distance avec SSH.pdf" p.17
 
-###TASK 4: REMOTE SYNC
+### TASK 4: REMOTE SYNC
 In this task you will use the remote machine as backup destination.
 
 Put the full commands for each step and the output (shortened if too long) into the lab report.

@@ -27,7 +27,7 @@ tmpfs on /run/lock type tmpfs (rw,nosuid,nodev,noexec,relatime,size=5120k)
 ...
 ```
 
-With the mount command we can see all the mounted partitions. We can see that the partition **sda1** is mounted and has a filesystem of type ext4 for instance.
+With the mount command we can see all the mounted partitions. For instance, we can see that the partition **sda1** is mounted and has a filesystem of type ext4.
 
 ***1.2 Which new files appeared? These represent the disk and its partitions you just attached.***  
 
@@ -37,11 +37,13 @@ ubuntu@mobile:~$ ls /dev/sd*
 /dev/sda  /dev/sda1  /dev/sdb
 ```
 
+<div style="page-break-after: always;"></div>
+
 ***1.3 Create a partition table on the disk and create two partitions of equal size using the parted tool***
 
 Here are the different points of the manipulation :
 
-****1.3.1 & 1.3.2 Use the parted command and display the existing partitions with the print command****
+**1.3.1 & 1.3.2 Use the parted command and display the existing partitions with the print command**
 ```bash
 ubuntu@mobile:~$ sudo parted /dev/sdb
 [sudo] password for ubuntu:
@@ -57,9 +59,9 @@ Partition Table: unknown
 Disk Flags:
 ```
 
-As expected, the disk is not recognized because it does not have a partition table.
+As expected, the disk is not recognized because it does not have a partition table yet.
 
-****1.3.3 & 1.3.4 Use the mktable command to create a partition table and display the free space with the command print free****
+**1.3.3 & 1.3.4 Use the mktable command to create a partition table and display the free space with the command print free**
 ```bash
 (parted) mktable                                                          
 New disk label type? msdos                                                
@@ -76,6 +78,8 @@ Number  Start   End     Size    Type  File system  Flags
 (parted)
 ```
 After the mktable we can see, with the print free command, that the disk can now have partitions because we initialized the disk with a partition table. We can now see the space available with the print free command.
+
+<div style="page-break-after: always;"></div>
 
 ****1.3.5 Creation of partitions****
 
@@ -155,14 +159,12 @@ We can see that the two partitions are now created because the **/dev/sdb** disk
 
 ***1.4 Format the two partitions using the mkfs command***
 
-Below are the two commands used to complete this part.
-
+Below are the two commands used to complete this part.  
 Firstly, the configuration of the vfat partition
 ```bash
 ubuntu@mobile:~$ sudo mkfs.vfat /dev/sdb1
 mkfs.fat 4.1 (2017-01-24)
 ```
-
 Secondly, the configuration of the ext4 partition
 ```bash
 ubuntu@mobile:~$ sudo mkfs.ext4 /dev/sdb2
@@ -200,8 +202,7 @@ Filesystem      Size  Used Avail Use% Mounted on
 ```
 
 ***What does the -h option do?***
-
-It can print the size for humans in powers of 1024 (i.e in KiB, MiB, GiB, ..).
+ It can print the size of files for humans in powers of 1024 (i.e in KiB, MiB, GiB, ..).
 
 <div style="page-break-after: always;"></div>
 
@@ -211,32 +212,32 @@ It can print the size for humans in powers of 1024 (i.e in KiB, MiB, GiB, ..).
 
   We used the following command to backup the home directory :   
   `sudo tar -cvpzf /mnt/backup1/backup.tar.gz ~`  
-  - -c is used to create a new archive file
-  - -v to verbose
-  - -p to preserve permissions
-  - -z to compress with gzip
-  - -f to specify the archive path.  
+  - `-c` is used to create a new archive file
+  - `-v` to verbose
+  - `-p` to preserve permissions
+  - `-z` to compress with gzip
+  - `-f` to specify the archive path.  
 
   The files in the archive contain a relative path. We confirmed it by displaying its files.
 
   For the zip file we used the following command :  
   `sudo zip -r /mnt/backup1/backup.zip ~`  
-  - -r is used recursively add the files of the home directory.
+  - `-r` is used recursively add the files of the home directory.
 
   With this we have all the files from the home directory eaven the hidden ones. The zip contains also the relative path of the directory such as `home/user`
 
-  In both command we had to use **sudo** because if not we could not write in the `/mnt/backup1` folder. Due to his permissons.
+  In both commands we had to use **sudo** because if not we could not write in the `/mnt/backup1` folder. Due to his permissons.
 
 * List the content of the archive.  
 
   `tar -ztf /mnt/backup1/backup.tar.gz`   
-  - -z allows us to filter the archive through gzip
-  - -t to list the content of the archive
-  - -f to specify the archive's path.
+  - `-z` allows us to filter the archive through gzip
+  - `-t` to list the content of the archive
+  - `-f` to specify the archive's path.
 
   Here is a part of the command :
-  ```bash
-  stephane@ubuntu:~$ tar -ztf /mnt/backup1/backup.tar.gz
+```bash
+stephane@ubuntu:~$ tar -ztf /mnt/backup1/backup.tar.gz
 home/stephane/
 home/stephane/snap/
 home/stephane/snap/nmap/
@@ -255,34 +256,35 @@ home/stephane/.xinputrc
 home/stephane/Desktop/
 home/stephane/.profile
 ...
-  ```
+```
+<div style="page-break-after: always;"></div>
 
   `unzip -l /mnt/backup1/backup.zip`  
-  -l allow us to unzip the file just to read the files in it.  
+  `-l` allow us to unzip the file just to read the files in it.  
   Here is an example of the result for the command :
-  ```bash
-  stephane@ubuntu:~$ unzip -l /mnt/backup1/backup.zip
-  Archive:  /mnt/backup1/backup.zip
-    Length      Date    Time    Name
-  ---------  ---------- -----   ----
-          0  2020-09-23 06:25   home/stephane/
-       3771  2020-09-23 06:08   home/stephane/.bashrc
-        131  2020-09-23 06:13   home/stephane/.xinputrc
-          0  2020-09-23 06:12   home/stephane/Desktop/
-        807  2020-09-23 06:08   home/stephane/.profile
-          0  2020-09-23 06:12   home/stephane/Pictures/
-        954  2020-09-23 06:24   home/stephane/.ICEauthority
-          0  2020-09-23 06:25   home/stephane/.sudo_as_admin_successful
-          ...
-    ```
+```bash
+stephane@ubuntu:~$ unzip -l /mnt/backup1/backup.zip
+Archive:  /mnt/backup1/backup.zip
+  Length      Date    Time    Name
+ ---------  ---------- -----   ----
+        0  2020-09-23 06:25   home/stephane/
+     3771  2020-09-23 06:08   home/stephane/.bashrc
+      131  2020-09-23 06:13   home/stephane/.xinputrc
+        0  2020-09-23 06:12   home/stephane/Desktop/
+      807  2020-09-23 06:08   home/stephane/.profile
+        0  2020-09-23 06:12   home/stephane/Pictures/
+      954  2020-09-23 06:24   home/stephane/.ICEauthority
+        0  2020-09-23 06:25   home/stephane/.sudo_as_admin_successful
+        ...
+```
 
 * Do a restore of the archive to a different place, say `/tmp`.  
 
   `tar -zxvf /mnt/backup1/backup.tar.gz -C /tmp`  
-  Same options as before, -x is used to extract the archive, -C to specify the output directory.
+  Same options as before, `-x` is used to extract the archive, `-C` to specify the output directory.
 
   `unzip /mnt/backup1/backup.zip -d /tmp`  
-  We use the unzip command again but this time with the -d option to specify in which directory we would like to extract the file
+  We use the unzip command again but this time with the `-d` option to specify in which directory we would like to extract the file
 
 * Do an incremental backup that saves only files that were modified after, say, September 23, 2016, 10:42:33. Do this only for tar, not for zip.
 
@@ -373,6 +375,8 @@ drwxr-xr-x 2 stephane stephane 4096 sep 23 06:12 Public
 drwxr-xr-x 2 stephane stephane 4096 sep 23 06:12 Templates
 drwxr-xr-x 2 stephane stephane 4096 sep 23 06:12 Videos
 ```
+<div style="page-break-after: always;"></div>
+
 ### Task 4 : Symbolic and hard links
 In this task you will examine whether the backup commands preserve symbolic and hard links. Consult the man pages and perform tests using tar and zip.
 
@@ -416,6 +420,7 @@ Simply now we do a restore of the archive to **/tmp** using the unzip command :
 ```bash
 osboxes@osboxes:/mnt/backup1$ sudo unzip /mnt/backup1/backup.zip  -d /tmp
 ```
+<div style="page-break-after: always;"></div>
 
 The result is predictable, by checking the content of our restored backup :
 ```bash

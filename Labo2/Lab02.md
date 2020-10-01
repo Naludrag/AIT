@@ -450,3 +450,8 @@ total size is 11,638,944  speedup is 581.13
 ```
 
 3. Optional: Using a network monitoring tool on your local Linux machine like `bmon` observe how much network traffic `rsync` is causing.  
+
+In order to observe the traffic, we launched a bmon on a second terminal while doing a full backup to the remote server.   
+We observed the following traffic while connected to the school network:
+
+<img style="width: 70%;" src="./bmon.png" />

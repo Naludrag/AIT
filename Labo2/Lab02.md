@@ -1,13 +1,7 @@
-## Lab 02 - File system snapshots
+## AIT Lab 02 - File system snapshots
 
-
-#### Pedagogical objectives
-
-* Learn how to create snapshots of a file system
-
-* Become familiar with rsync synchronization tool
-
-* Perform backups to a remote system
+**Author:** Müller Robin, Stéphane Teixeira Carvalho, Massaoudi Walid  
+**Date:** 2020-09-30
 
 ### Task 1: Local sync
 
@@ -15,9 +9,6 @@ In this task you will create incremental backups of a home directory
 by using file synchronization and file system snapshots. To store the
 backup you will use the backup disk you partitioned in the previous
 lab.
-
-Put the full commands for each step and the output (shortened if too
-long) into the lab report.
 
 1.  Choose a home directory, preferably your own, for which to create
     a backup. A full uncompressed backup should fill the ext4
@@ -32,6 +23,8 @@ long) into the lab report.
     7.3M	/home/stephane
     ```
 
+    For this task we can use the home directory as the source directory.
+
 2.  On the backup disk, on the ext4 partition, create a directory
     called `<username>_backup` that will contain the backup. Change
     the owner of this directory from root to the owner of the source
@@ -41,14 +34,17 @@ long) into the lab report.
     be called the backup directory.
 
     ```bash
-    stephane@ubuntu:~$ sudo mkdir /mnt/backup1/stephane_backup
-    stephane@ubuntu:~$ ls /mnt/backup1/
-    stephane_backup
-    stephane@ubuntu:~$ sudo chown stephane /mnt/backup1/stephane_backup
-    stephane@ubuntu:~$ ls -l /mnt/backup1/
+    stephane@ubuntu:~$ sudo mkdir /mnt/backup2/stephane_backup
+    stephane@ubuntu:~$ ls -l /mnt/backup2/
+    total 4
+    drwxr-xr-x 2 root root 4096 oct  5 13:24 stephane_backup
+    stephane@ubuntu:~$ sudo chown stephane /mnt/backup2/stephane_backup
+    stephane@ubuntu:~$ ls -l /mnt/backup2/
     total 4
     drwxr-xr-x 2 stephane root 4096 sep 30 05:55 stephane_backup
     ```
+
+    We used the mouting points created in the previous lab to create the directory on the ext4 partiton.
 
 3.  Perform an initial copy of the source directory to the backup
     directory.
@@ -61,19 +57,9 @@ long) into the lab report.
             * 2017-09-25-101142
             * 2017-09-25-104812
 
-    Here the format for the timestamp is
-    `<year>-<month>-<day>-<hour><minute><second>`.  Note that it is
-    good practice to give the times in UTC to be independent of
-    timezones.
-
-    To perform the initial copy of the source directory into that
-    directory you can use `rsync` with the `-a` and `-v` options:
-
-            rsync -av <source_directory>/ 2017-09-25-093533
-
     * What do these options do?
       - `-a` : archive files and directory while synchronizing ( -a equal to following options -rlptgoD)
-      - `-v` : will be able to make a verbose output
+      - `-v` : will be able to make a verbose output  
     * Specifically, which options are implied by the `-a` option and what do they do?
       - As shown above the option `-a` is a shortcut for the following options :
         - `-r` : sync files and directories recursively
@@ -99,12 +85,13 @@ long) into the lab report.
     stephane@ubuntu:~$ date -u "+%Y-%m-%d-%H%M%S"
     2020-09-30-131944
     ```
+    We can see that the result of the date command is the one expected for the lab.
 
     After knowing all the commands to do the rsync we ran the following command :
     ```bash
-    stephane@ubuntu:~$ rsync -av ~ /mnt/backup1/stephane_backup/$(date -u "+%Y-%m-%d-%H%M%S")
+    stephane@ubuntu:~$ rsync -av ~ /mnt/backup2/stephane_backup/$(date -u "+%Y-%m-%d-%H%M%S")
     sending incremental file list
-    created directory /mnt/backup1/stephane_backup/2020-09-30-133536
+    created directory /mnt/backup2/stephane_backup/2020-09-30-133536
     stephane/
     stephane/.ICEauthority
     stephane/.bash_history
@@ -122,11 +109,11 @@ long) into the lab report.
     * How much disk space is used by the backup directory?
 
       ```bash
-      stephane@ubuntu:~$ ls -l /mnt/backup1/stephane_backup
+      stephane@ubuntu:~$ ls -l /mnt/backup2/stephane_backup
       total 4
       drwxr-xr-x 3 stephane stephane 4096 sep 30 15:35 2020-09-30-133536
-      stephane@ubuntu:~$ du -sh /mnt/backup1/stephane_backup/
-      7.3M	/mnt/backup1/stephane_backup/
+      stephane@ubuntu:~$ du -sh /mnt/backup2/stephane_backup/
+      7.3M	/mnt/backup2/stephane_backup/
       ```
 
       We can see that the backup directory as the same size as the source directory.
@@ -141,19 +128,13 @@ long) into the lab report.
     * `--delete` : delete extraneous files from destination dirs
     * `--link-dest` to do an incremental backup using hard links
 
-    __Note:__ The `--link-dest` option takes a directory of a previous
-    backup as parameter. If it is given as a __relative__ path, __rsync
-    expects it to be relative not to the current directory, but the
-    destination directory (the last parameter)__.
-
     Heres is the result of the rsync command :
     ```bash
-    stephane@ubuntu:~$ rsync -av --delete --link-dest=/mnt/backup1/stephane_backup/2020-09-30-133536 ~ /mnt/backup1/stephane_backup/$(date -u "+%Y-%m-%d-%H%M%S")
+    stephane@ubuntu:~$ rsync -av --delete --link-dest=/mnt/backup2/stephane_backup/2020-09-30-133536 ~ /mnt/backup2/stephane_backup/$(date -u "+%Y-%m-%d-%H%M%S")
     sending incremental file list
-    created directory /mnt/backup1/stephane_backup/2020-09-30-135543
+    created directory /mnt/backup2/stephane_backup/2020-09-30-135543
     stephane/.config/nautilus/
     stephane/.config/nautilus/desktop-metadata
-    rsync: send_files failed to open "/home/stephane/.local/share/recently-used.xbel": Permission denied (13)
     stephane/.local/share/gvfs-metadata/
     stephane/.local/share/gvfs-metadata/root
     stephane/.local/share/gvfs-metadata/root-407fb817.log
@@ -169,14 +150,14 @@ long) into the lab report.
     you explain what `du` displays (if you had to write the `du` command, how would you count hard links)?
 
     ```bash
-    stephane@ubuntu:~$ du -sh /mnt/backup1/stephane_backup/
-    8.1M	/mnt/backup1/stephane_backup/
-    stephane@ubuntu:~$ du -sh /mnt/backup1/stephane_backup/*
-    7.3M	/mnt/backup1/stephane_backup/2020-09-30-133536
-    744K	/mnt/backup1/stephane_backup/2020-09-30-135543
+    stephane@ubuntu:~$ du -sh /mnt/backup2/stephane_backup/
+    8.1M	/mnt/backup2/stephane_backup/
+    stephane@ubuntu:~$ du -sh /mnt/backup2/stephane_backup/*
+    7.3M	/mnt/backup2/stephane_backup/2020-09-30-133536
+    744K	/mnt/backup2/stephane_backup/2020-09-30-135543
     ```
 
-    With the `du` command we can see that all the files that were unchanged are hard linked to the first backup. This is due to the fact that we used `--linked-dest`
+    With the `du` command we can see that all the files that were unchanged are hard linked to the first backup and so the second backup is way smaller than the first backup. This is due to the fact that we used `--linked-dest`
 
 5.  Modify a file in the source directory and perform another
     incremental backup like in the previous step.
@@ -186,16 +167,14 @@ long) into the lab report.
     When doing the rsync we can see that the file is added  :
 
     ```bash
-    stephane@ubuntu:~$ rsync -av --delete --link-dest=/mnt/backup1/stephane_backup/2020-09-30-133536 ~ /mnt/backup1/stephane_backup/$(date -u "+%Y-%m-%d-%H%M%S")
+    stephane@ubuntu:~$ rsync -av --delete --link-dest=/mnt/backup2/stephane_backup/2020-09-30-133536 ~ /mnt/backup2/stephane_backup/$(date -u "+%Y-%m-%d-%H%M%S")
     sending incremental file list
-    created directory /mnt/backup1/stephane_backup/2020-09-30-140922
+    created directory /mnt/backup2/stephane_backup/2020-09-30-140922
     stephane/
     stephane/snapshot.file
-    IO error encountered -- skipping file deletion
     stephane/.config/nautilus/
     stephane/.config/nautilus/desktop-metadata
     stephane/.local/share/
-    rsync: send_files failed to open "/home/stephane/.local/share/recently-used.xbel": Permission denied (13)
     stephane/.local/share/gvfs-metadata/
     stephane/.local/share/gvfs-metadata/root
     stephane/.local/share/gvfs-metadata/root-407fb817.log
@@ -213,7 +192,7 @@ long) into the lab report.
 
     Here is the result for a file that as changed :
     ```bash
-    stephane@ubuntu:/mnt/backup1/stephane_backup$ stat 2020-09-30-140922/stephane/snapshot.file
+    stephane@ubuntu:/mnt/backup2/stephane_backup$ stat 2020-09-30-140922/stephane/snapshot.file
       File: 2020-09-30-140922/stephane/snapshot.file
       Size: 40        	Blocks: 8          IO Block: 4096   regular file
     Device: 801h/2049d	Inode: 1208538     Links: 1
@@ -232,11 +211,11 @@ long) into the lab report.
     Change: 2020-09-30 15:55:43.228826935 +0200
      Birth: -
     ```
-    In this case we can see that the inode as changed and the hours of access too.
+    In this case we can see that the inode as changed and the hours of access too. We can also see that the file that has not be chnaged has 2 links. It means that the 2 backups are pointing to the same inode.
 
-    In contrast, when a file is unchanged we can see that they use the same inode :
+    In contrast, when a file is unchanged we can see that they use the same inode and this time the number of liks equls 3 because we didi 3 backups :
     ```bash
-    stephane@ubuntu:/mnt/backup1/stephane_backup$ stat 2020-09-30-140922/stephane/myScan.xml
+    stephane@ubuntu:/mnt/backup2/stephane_backup$ stat 2020-09-30-140922/stephane/myScan.xml
       File: 2020-09-30-140922/stephane/myScan.xml
       Size: 15845     	Blocks: 32         IO Block: 4096   regular file
     Device: 801h/2049d	Inode: 1198468     Links: 3
@@ -245,7 +224,7 @@ long) into the lab report.
     Modify: 2020-09-25 13:07:25.000052231 +0200
     Change: 2020-09-30 16:09:22.789117109 +0200
      Birth: -
-    stephane@ubuntu:/mnt/backup1/stephane_backup$ stat 2020-09-30-133536/stephane/myScan.xml
+    stephane@ubuntu:/mnt/backup2/stephane_backup$ stat 2020-09-30-133536/stephane/myScan.xml
       File: 2020-09-30-133536/stephane/myScan.xml
       Size: 15845     	Blocks: 32         IO Block: 4096   regular file
     Device: 801h/2049d	Inode: 1198468     Links: 3
@@ -259,8 +238,8 @@ long) into the lab report.
 
     How much disk space is used by the backup directory?
     ```bash
-    stephane@ubuntu:/mnt/backup1/stephane_backup$ du -sh /mnt/backup1/stephane_backup/
-    8.8M	/mnt/backup1/stephane_backup/
+    stephane@ubuntu:/mnt/backup2/stephane_backup$ du -sh /mnt/backup2/stephane_backup/
+    8.8M	/mnt/backup2/stephane_backup/
     ```
 
     As expected the directory only grew for about 700K due to the fact of the new backup.
@@ -270,8 +249,8 @@ long) into the lab report.
     backup?
 
     ```bash
-    stephane@ubuntu:/mnt/backup1/stephane_backup$ rm -rf 2020-09-30-133536
-    stephane@ubuntu:/mnt/backup1/stephane_backup$ stat 2020-09-30-140922/stephane/myScan.xml
+    stephane@ubuntu:/mnt/backup2/stephane_backup$ rm -rf 2020-09-30-133536
+    stephane@ubuntu:/mnt/backup2/stephane_backup$ stat 2020-09-30-140922/stephane/myScan.xml
       File: 2020-09-30-140922/stephane/myScan.xml
       Size: 15845     	Blocks: 32         IO Block: 4096   regular file
     Device: 801h/2049d	Inode: 1198468     Links: 2
@@ -282,9 +261,9 @@ long) into the lab report.
      Birth: -
     ```
 
-    We can see that the inode has not changed even after the deletion of the original backup. This is because some files were still referencing the original inode and so the system did not erase the inode.
+    We can see that the inode has not changed even after the deletion of the original backup. This is because some files were still referencing the original inode and so the system did not erase the inode. Th number of links has be decremented by one because we deleted one backup
 
-### TASK 2: Access the VM with SSH for remote login
+### Task 2: Access the VM with SSH for remote login
 In this task you will use SSH to easily log into a remote virtual machine in a public cloud that will server as a backup destination in the next task.
 
 The remote machine has URL address ec2-3-134-84-63.us-east-2.compute.amazonaws.com (From Local Network or VPN).
@@ -296,10 +275,7 @@ Your account is configured to accept login via SSH using the password : toortoor
 osboxes@osboxes:~$  ssh walid.massaoudi@ec2-3-134-84-63.us-east-2.compute.amazonaws.com
 ```
 
-### TASK 3: SSH authentication
-SSH authentication by password ?!? Lol ! let's change it !
-
-Don't forrget to put the configuration and the full commands and the output (shortened if too long) for each step into the lab report.
+### Task 3: SSH authentication
 
 Create a .ssh folder at the root of your personal folder on the remote machine
 
@@ -397,12 +373,11 @@ To see these additional updates run: apt list --upgradable
 *** System restart required ***
 Last login: Wed Sep 30 14:12:47 2020 from 193.134.219.71
 ```
-You can find help in the document "ADS Lc01b Accès à distance avec SSH.pdf" p.17
 
-### TASK 4: Remote sync
+As shown in the command line output aboce we can confirm that the ssh connection works
+
+### Task 4: Remote sync
 In this task you will use the remote machine as backup destination.
-
-Put the full commands for each step and the output (shortened if too long) into the lab report.
 
 1. Create a backup directory on the remote machine as described in Task 1 so that your user can read/write.  
 We simply created a new folder on the remote server, the permissions were already set properly as we can see below:

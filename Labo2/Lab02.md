@@ -454,3 +454,5 @@ In order to observe the traffic, we launched a bmon on a second terminal while d
 We observed the following traffic while connected to the school network:
 
 <img style="width: 70%;" src="./bmon.png" />
+
+As we were using the HEIG-VD Wi-Fi during a day in a pretty busy classroom, we can see that the traffic is not enormous, 2 MiB/s. We can also blame it on the fact that we backed up multiple small files rather than big files.   

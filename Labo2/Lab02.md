@@ -5,18 +5,9 @@
 
 ### Task 1: Local sync
 
-In this task you will create incremental backups of a home directory
-by using file synchronization and file system snapshots. To store the
-backup you will use the backup disk you partitioned in the previous
-lab.
+In this task you will create incremental backups of a home directory by using file synchronization and file system snapshots. To store the backup you will use the backup disk you partitioned in the previous lab.
 
-1.  Choose a home directory, preferably your own, for which to create
-    a backup. A full uncompressed backup should fill the ext4
-    partition of the backup disk to not more than 50%. If the home
-    directory is too big, choose an appropriate sub-tree. To find out
-    how much space is occupied by a directory tree you can use the
-    command `du -sh <directory>`. The directory will be called the
-    source directory.
+1.  Choose a home directory, preferably your own, for which to create a backup. A full uncompressed backup should fill the ext4 partition of the backup disk to not more than 50%. If the home directory is too big, choose an appropriate sub-tree. To find out how much space is occupied by a directory tree you can use the command `du -sh <directory>`. The directory will be called the source directory.
 
     ```bash
     stephane@ubuntu:~$ du -sh ~
@@ -25,13 +16,7 @@ lab.
 
     For this task we can use the home directory as the source directory.
 
-2.  On the backup disk, on the ext4 partition, create a directory
-    called `<username>_backup` that will contain the backup. Change
-    the owner of this directory from root to the owner of the source
-    directory so that (1) you do not need superuser rights to copy
-    files into it and (2) the user can directly read files back from
-    the directory without needing superuser rights. The directory will
-    be called the backup directory.
+2.  On the backup disk, on the ext4 partition, create a directory called `<username>_backup` that will contain the backup.   Change the owner of this directory from root to the owner of the source directory so that (1) you do not need superuser rights to copy files into it and (2) the user can directly read files back from the directory without needing superuser rights. The directory will be called the backup directory.
 
     ```bash
     stephane@ubuntu:~$ sudo mkdir /mnt/backup2/stephane_backup
@@ -46,11 +31,9 @@ lab.
 
     We used the mouting points created in the previous lab to create the directory on the ext4 partiton.
 
-3.  Perform an initial copy of the source directory to the backup
-    directory.
+3.  Perform an initial copy of the source directory to the backup directory.
 
-    In the backup directory you will create a series of
-    sub-directories for the backups. Their name consists of a timestamp of the time the backup was made:
+    In the backup directory you will create a series of sub-directories for the backups. Their name consists of a timestamp of the time the backup was made:
 
         * aeinstein_backup
             * 2017-09-25-093533
@@ -60,6 +43,9 @@ lab.
     * What do these options do?
       - `-a` : archive files and directory while synchronizing ( -a equal to following options -rlptgoD)
       - `-v` : will be able to make a verbose output  
+
+      <div style="page-break-after: always;"></div>
+
     * Specifically, which options are implied by the `-a` option and what do they do?
       - As shown above the option `-a` is a shortcut for the following options :
         - `-r` : sync files and directories recursively
@@ -106,6 +92,8 @@ lab.
     ...
     ```
 
+    <div style="page-break-after: always;"></div>
+
     * How much disk space is used by the backup directory?
 
       ```bash
@@ -118,12 +106,9 @@ lab.
 
       We can see that the backup directory as the same size as the source directory.
 
-4.  Without having modified a file in the source directory do an
-    incremental backup using hard links. As before the name of the
-    destination directory is the current timestamp.
+4.  Without having modified a file in the source directory do an incremental backup using hard links. As before the name of the destination directory is the current timestamp.
 
-    In addition to the `rsync` options of the previous step, use the
-    following options (use `man` to find out what they do):
+    In addition to the `rsync` options of the previous step, use the following options (use `man` to find out what they do):
 
     * `--delete` : delete extraneous files from destination dirs
     * `--link-dest` to do an incremental backup using hard links
@@ -145,9 +130,7 @@ lab.
     total size is 6,293,293  speedup is 18.70
     ```
 
-    How much disk space is used by the backup directory according to
-    the `du` command? How much by the individual snapshot directories? How do
-    you explain what `du` displays (if you had to write the `du` command, how would you count hard links)?
+    How much disk space is used by the backup directory according to the `du` command? How much by the individual snapshot directories? How do you explain what `du` displays (if you had to write the `du` command, how would you count hard links)?
 
     ```bash
     stephane@ubuntu:~$ du -sh /mnt/backup2/stephane_backup/
@@ -159,8 +142,9 @@ lab.
 
     With the `du` command we can see that all the files that were unchanged are hard linked to the first backup and so the second backup is way smaller than the first backup. This is due to the fact that we used `--linked-dest`
 
-5.  Modify a file in the source directory and perform another
-    incremental backup like in the previous step.
+<div style="page-break-after: always;"></div>
+
+5.  Modify a file in the source directory and perform another incremental backup like in the previous step.
 
     For this manipulation we decide to change a file named `snapshot.file` in the home directory.
 
@@ -186,9 +170,7 @@ lab.
     total size is 6,293,297  speedup is 18.69
     ```
 
-    Using the `stat` command examine the inodes of different versions
-    of a file. Do this for a file that **has not** changed between
-    backups and for a file that **has** changed. What do you see?
+    Using the `stat` command examine the inodes of different versions of a file. Do this for a file that **has not** changed between backups and for a file that **has** changed. What do you see?
 
     Here is the result for a file that as changed :
     ```bash
@@ -212,6 +194,8 @@ lab.
      Birth: -
     ```
     In this case we can see that the inode as changed and the hours of access too. We can also see that the file that has not be chnaged has 2 links. It means that the 2 backups are pointing to the same inode.
+
+    <div style="page-break-after: always;"></div>
 
     In contrast, when a file is unchanged we can see that they use the same inode and this time the number of liks equls 3 because we didi 3 backups :
     ```bash
@@ -244,9 +228,7 @@ lab.
 
     As expected the directory only grew for about 700K due to the fact of the new backup.
 
-6.  Delete the initial full backup. What happens to the files in the
-    incremental backup that were hardlinked to the files of the full
-    backup?
+6.  Delete the initial full backup. What happens to the files in the incremental backup that were hardlinked to the files of the full backup?
 
     ```bash
     stephane@ubuntu:/mnt/backup2/stephane_backup$ rm -rf 2020-09-30-133536
@@ -263,6 +245,8 @@ lab.
 
     We can see that the inode has not changed even after the deletion of the original backup. This is because some files were still referencing the original inode and so the system did not erase the inode. Th number of links has be decremented by one because we deleted one backup
 
+    <div style="page-break-after: always;"></div>
+
 ### Task 2: Access the VM with SSH for remote login
 In this task you will use SSH to easily log into a remote virtual machine in a public cloud that will server as a backup destination in the next task.
 
@@ -271,9 +255,42 @@ The remote machine has URL address ec2-3-134-84-63.us-east-2.compute.amazonaws.c
 We have created an account for you on the machine. The account name is the part before the @ in your email address.
 
 Your account is configured to accept login via SSH using the password : toortoor
+
+Here is the result of the conenction :
+
 ```bash
 osboxes@osboxes:~$  ssh walid.massaoudi@ec2-3-134-84-63.us-east-2.compute.amazonaws.com
+walid.massaoudi@ec2-3-134-84-63.us-east-2.compute.amazonaws.com s password:
+Welcome to Ubuntu 20.04.1 LTS (GNU/Linux 5.4.0-1024-aws x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/advantage
+
+  System information as of Tue Oct  6 15:57:23 UTC 2020
+
+  System load:  0.0               Processes:             109
+  Usage of /:   50.6% of 7.69GB   Users logged in:       0
+  Memory usage: 26%               IPv4 address for eth0: 172.31.35.19
+  Swap usage:   0%
+
+ * Kubernetes 1.19 is out! Get it in one command with:
+
+     sudo snap install microk8s --channel=1.19 --classic
+
+   https://microk8s.io/ has docs and details.
+
+32 updates can be installed immediately.
+1 of these updates is a security update.
+To see these additional updates run: apt list --upgradable
+
+
+*** System restart required ***
+Last login: Wed Sep 30 14:15:34 2020 from 193.134.219.71
+walid.massaoudi@ip-172-31-35-19:~$
 ```
+
+<div style="page-break-after: always;"></div>
 
 ### Task 3: SSH authentication
 
@@ -323,8 +340,11 @@ walid.massaoudi@ip-172-31-35-19:~$ cat >> ~/.ssh/authorized_keys
 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC4sVNfd77cZBnhOw8p5z5z2qjj0OlTO81Xcts7kv05tXeFVXJiOF74QQTjnj7YtCuJO7b5AQZOGGSib98fpGmnxAkQUtzF+tJC9g9ZveHunJuGJ8FUuexUxAK9Or+71PLiuSGkgRzLmDXo3UMVyb8HPOWP5lkc14CDyeUbksd5RdZVzxTN1fVAT5GevsA5dXQOgZkh3rLwLE3y2Ql/ZNmfIc9/As4C7wrZ/QDINMZ8kOiZN6nq4S22/qHg18WwQ5fdwE+R9GMMcpPUyxbqp6Bu3zJs7gLqb9ZVXezjrMFyJgf6uofql5ekcGKLHuvGPWOtZGIpM/ia9MgQYtXtluJR walid.massaoudi@heig-vd.ch
 
 ```
+
+<div style="page-break-after: always;"></div>
+
 Configure a ssh shortcut on your local machine. It allows you to replace all parameters of the remote machine with a single shortcut when using ssh or rsync.
-we simply add the following configuration  to  the  ~/.ssh/config file :
+We simply added the following configuration to the ~/.ssh/config file :
 
 ```bash
 osboxes@osboxes:~/.ssh$ cat config
@@ -423,6 +443,10 @@ Calibre Library/James S. A. Corey/Expanse 05 - Nemesis Games (2)/metadata.opf
 sent 16,275 bytes  received 3,753 bytes  635.81 bytes/sec
 total size is 11,638,944  speedup is 581.13
 ```
+
+In this case we can see that the files that were changed are added to the backup.
+
+<div style="page-break-after: always;"></div>
 
 3. Optional: Using a network monitoring tool on your local Linux machine like `bmon` observe how much network traffic `rsync` is causing.  
 

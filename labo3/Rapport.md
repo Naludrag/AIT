@@ -122,7 +122,17 @@ As expected, when opening a new browser, the connection is redirected to the nod
 
 #### 3.5
 However many times we clear the cookies, we are only reaching the s2 node. A new session id is generated on every connection and `sessionViews` is equals to one.  
-This is the expected outcome as the proxy has no way to recognize the client without the cookies.
+This is the expected outcome as the proxy has no way to recognize the client without the cookies, and the node in DRAIN mode does not accept new connections.
+
+#### 3.6
+We set the s1 node into ready mode with the following command:  
+`> set server nodes/s1 state ready`
+1. After refreshing the page, we stay on the same node, due to sticky sessions, and `sessionViews` is still being incremented.
+2. After opening a new browser, we were connected to the s2 node with `sessionViews` at 1.
+3. As we clear the cookies, the sticky sessions balancing cannot not work, hence we get a new session id and `sessionViews` equals one on every refresh.
+
+HAProxy stats:  
+<img alt="Test 1" src="./imgRapport/3.6.png" width="700" >
 
 
 

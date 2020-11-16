@@ -45,7 +45,25 @@ We can also see a different comportement from the session handling :
 <img alt="Test 1" src="./imgRapport/1.5_2.PNG" width="700" >
 
 This time because we comunicate with the same server we did not change of session id and the sessionView variable incremented as expected.
+
 ### Task 2
+#### 2.1
+The difference between the two ways of implementing the sticky session is mainly the creator of the paramaters. In the first case with the SERVERID the HAProxy will handle it so the id of the server will be added to the response of the server by the proxy to have cover of the track from which server responded.
+
+In the second case with the NODESESSID the HAproxy will use the existing cookie to know to which server send the request. The HAproxy will then have a stick-table per backend node. The advantage of using this approach is that, if we have an application that contains static content that don't need authentification any server will be used to respond to the request.
+
+#### 2.2
+We decided to use the NODESESSID already implemented. Here is the configuration :
+
+```bash
+cookie NODESESSID prefix nocache
+# Define the list of nodes to be in the balancing mechanism
+# http://cbonte.github.io/haproxy-dconv/2.2/configuration.html#4-server
+server s1 ${WEBAPP_1_IP}:3000 check cookie s1
+server s2 ${WEBAPP_2_IP}:3000 check cookie s2
+```
+In the first line we say that we had a prefix to the cookie named NODESESSID we had the name of the server. So in our case we will see teh prefix s1 or s2.
+Then we tell that if we receive a cookie with the prefix s1 we send to the s1 server and if we receive s2 we send to s2.
 
 ### Task 3
 

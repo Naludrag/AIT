@@ -98,7 +98,7 @@ We can confirm the result also be watching the content of the last response of e
 ### Task 3
 #### 3.1
 We get the following page when we access the HAProxy statistics page:
-<img alt="Test 1" src="./imgRapport/3.1.png" width="700" >
+<img alt="3.1" src="./imgRapport/3.1.png" width="700" >
 
 As we can see in the nodes menu, under "Session rate", we are connected to the node s1.
 
@@ -107,7 +107,7 @@ We started by setting the s1 node into drain with the following command:
 `> set server nodes/s1 state drain`
 
 In the HAProxy page, we see that the node has been indeed put into drain mode:
-<img alt="Test 1" src="./imgRapport/3.2.png" width="700" >
+<img alt="3.2" src="./imgRapport/3.2.png" width="700" >
 
 
 #### 3.3
@@ -131,12 +131,18 @@ We set the s1 node into ready mode with the following command:
 2. After opening a new browser, we were connected to the s2 node with `sessionViews` at 1.
 3. As we clear the cookies, the sticky sessions balancing cannot not work, hence we get a new session id and `sessionViews` equals one on every refresh.
 
-HAProxy stats:  
-<img alt="Test 1" src="./imgRapport/3.6.png" width="700" >
+HAProxy stats page:  
+<img alt="3.6" src="./imgRapport/3.6.png" width="700" >
 
+#### 3.7
+We set the s1 node into maint mode with the following command:  
+`> set server nodes/s1 state maint`
+1. After refreshing the page, we are redirected to the s2 node. This is expected as maint mode redirects all connections. We get a new session id and `sessionViews` is 1.
+2. After opening a new browser, we were connected to the s2 node with `sessionViews` at 1.
+3. As we clear the cookies, we get a new session id and `sessionViews` equals one on every refresh. Due to the maintenance mode, all connections go through the s2 node.
 
-
-
+HAProxy stats page:  
+<img alt="3.7" src="./imgRapport/3.6.png" width="700" >
 
 
 ### Task 4

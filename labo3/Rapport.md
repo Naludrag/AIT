@@ -97,7 +97,19 @@ We can confirm the result also be watching the content of the last response of e
 
 ### Task 3
 #### 3.1
+We get the following page when we access the HAProxy statistics page:
 <img alt="Test 1" src="./imgRapport/3.1.png" width="700" >
+
+As we can see in the nodes menu, under "Session rate", we are connected to the node s1.
+
+#### 3.2
+We started by setting the s1 node into drain with the following command:  
+`> set server nodes/s1 state drain`
+
+In the HAProxy page, we see that the node has been indeed put into drain mode:
+<img alt="Test 1" src="./imgRapport/3.2.png" width="700" >
+
+
 
 
 ### Task 4

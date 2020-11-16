@@ -110,6 +110,16 @@ In the HAProxy page, we see that the node has been indeed put into drain mode:
 <img alt="Test 1" src="./imgRapport/3.2.png" width="700" >
 
 
+#### 3.3
+After refreshing the page, we get the following result:   
+`{"hello":"world!","ip":"192.168.42.11","host":"39b872b37ed6","tag":"s1","sessionViews":34,"id":"u5uOH_iXc8vAZp3yu71dcOMIkfJUrRQk"}`
+
+We are still on the same node, and the session views are still being incremented. While in drain mode, only the new traffic is redirected to a new node. The active sessions continue to communicate with the same node.
+
+
+
+
+
 
 
 ### Task 4

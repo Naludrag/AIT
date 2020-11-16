@@ -116,6 +116,11 @@ After refreshing the page, we get the following result:
 
 We are still on the same node, and the session views are still being incremented. While in drain mode, only the new traffic is redirected to a new node. The active sessions continue to communicate with the same node.
 
+#### 3.4
+As expected, when opening a new browser, the connection is redirected to the node s2. We get the following result:  
+`{"hello":"world!","ip":"192.168.42.22","host":"cf4f8b90df17","tag":"s2","sessionViews":1,"id":"78oYzA7zknFo_9N0HwQn9gqE117u7ELA"}`
+
+
 
 
 

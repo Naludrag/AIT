@@ -65,6 +65,36 @@ server s2 ${WEBAPP_2_IP}:3000 check cookie s2
 In the first line we say that we had a prefix to the cookie named NODESESSID we had the name of the server. So in our case we will see teh prefix s1 or s2.
 Then we tell that if we receive a cookie with the prefix s1 we send to the s1 server and if we receive s2 we send to s2.
 
+#### 2.3
+As expected the session is now handled correctly we communicate with the server that initiate the connection. If we look at the cookie we can see that the HAProxy added the prefix of the name of the webapp as expected.
+
+<img alt="Test 1" src="./imgRapport/2.3.PNG" width="700" >
+
+#### 2.4
+TODO : Graphe
+
+#### 2.5
+Yes in this case the same server is reached every time so the 1000 requests were sent to the same server in our case the server s2 :
+<img alt="Test 1" src="./imgRapport/2.5.PNG" width="700" >
+
+We can confirm that also be watching the content of the response of the last get that we sent :
+<img alt="Test 1" src="./imgRapport/2.5_1.PNG" width="700" >
+
+We can see that the sessionViews has incremented to 1000.
+
+#### 2.6
+In this case we obtain the following result :
+<img alt="Test 1" src="./imgRapport/2.6.PNG" width="700" >
+
+In this case we have 2000 requests GET because we set that the thread group will have 2 thread. The load balancer will then tell one user to talk to the web app and to the second user to talk to the second web app s2. This is the result of the round robin.
+
+Then as defined in the test the thread(user) will send 1000 GET request. The first user will send 1000 requests to the server s1 and then the seond user 1000 requests to the server s2.
+
+We can confirm the result also be watching the content of the last response of each server :
+<img alt="Test 1" src="./imgRapport/2.6_1.PNG" width="700" >
+<img alt="Test 1" src="./imgRapport/2.6_2.PNG" width="700" >
+
+
 ### Task 3
 
 ### Task 4

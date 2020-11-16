@@ -96,6 +96,9 @@ We can confirm the result also be watching the content of the last response of e
 
 
 ### Task 3
+#### 3.1
+<img alt="Test 1" src="./imgRapport/3.1.png" width="700" >
+
 
 ### Task 4
 

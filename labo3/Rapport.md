@@ -120,7 +120,9 @@ We are still on the same node, and the session views are still being incremented
 As expected, when opening a new browser, the connection is redirected to the node s2. We get the following result:  
 `{"hello":"world!","ip":"192.168.42.22","host":"cf4f8b90df17","tag":"s2","sessionViews":1,"id":"78oYzA7zknFo_9N0HwQn9gqE117u7ELA"}`
 
-
+#### 3.5
+However many times we clear the cookies, we are only reaching the s2 node. A new session id is generated on every connection and `sessionViews` is equals to one.  
+This is the expected outcome as the proxy has no way to recognize the client without the cookies.
 
 
 

@@ -1,4 +1,4 @@
-## AIT Lab 03 - Load balancing
+decrease## AIT Lab 03 - Load balancing
 
 **Author:** Müller Robin, Stéphane Teixeira Carvalho, Massaoudi Walid  
 **Date:** 2020-10-07
@@ -146,6 +146,50 @@ HAProxy stats page:
 
 
 ### Task 4
+First we gonna reset the value of the s1 delay to 0 (note that we use docker toolbox for this stage):
+![delay conf ](4.0.png)
+
+![conf jmeter](4.0.1.png)
+
+#### 4.1
+We need to set the management policy of cookies to be deleted with every iteration .
+![cookies](4.0.2.png)
+The result as we see is a good distribution of traffic between the two servers
+![jmeter result](4.0.3.png)
+
+#### 4.2
+In this step we set the delay value of s1 to 250 ms with the following command:
+```bash
+Walid@DESKTOP-STMV1IC MINGW64 /c/Program Files/Docker Toolbox
+$ curl -H "Content-Type: application/json" -X POST -d '{"delay":250}' 192.168.99.100:4000/delay                         {"message":"New timeout of 250ms configured."}
+```
+![250ms](4.2.png)
+As we see this value is  enough to disturb our servers ,as well the most of traffic is balanced to s2 ,however s1 still taking place in the application to respond some requests, also we have a remarkable decrease of the performance.
+
+#### 4.3
+After we increased the delay of s1 to 2500 ms we get the following results :
+![2500ms](4.3.png)
+
+In this case the delay is much bigger than the previous one,so the server s1 is avoided by the most of requests .Jmeter shows that an average of 0.1% of traffic
+go through s1.
+#### 4.4
+ There is no error in the two previous steps because  HAProxy redirects all requests from one server to another according to the round robin, however it waits for a response from the assigned server. In our case, it sends a request to S1 and while this one processes it, the S2 server will take care of all the following ones, then when S1 is available again After the long wait , it will take the next request if there is one .
+
+#### 4.5
+We need toadd the following lines to the conf file of HAProxy :
+```bash
+server s1 ${WEBAPP_1_IP}:3000 weight 2 check cookie s1
+server s2 ${WEBAPP_2_IP}:3000 weight 1 check cookie s2
+```
+Then set the delay to 250 ms .
+
+#### 4.6
+ need with  cookies  picture
+
+ without cookies:
+ ![without cookies ](4.6.1.png)
+
+The change is quite major, we can see that using cookies with a heavy weight and a slow server can drastically slow down the overall performance of our load balancer.
 
 ### Task 5
 

@@ -1,4 +1,4 @@
-decrease## AIT Lab 03 - Load balancing
+## AIT Lab 03 - Load balancing
 
 **Author:** Müller Robin, Stéphane Teixeira Carvalho, Massaoudi Walid  
 **Date:** 2020-10-07
@@ -147,15 +147,15 @@ HAProxy stats page:
 
 ### Task 4
 First we gonna reset the value of the s1 delay to 0 (note that we use docker toolbox for this stage):
-![delay conf ](imgRapport/4.0.png)
+![delay conf ](4.0.png)
 
-![conf jmeter](imgRapport/4.0.1.png)
+![conf jmeter](4.0.1.png)
 
 #### 4.1
 We need to set the management policy of cookies to be deleted with every iteration .
-![cookies](imgRapport/4.0.2.png)
+![cookies](4.0.2.png)
 The result as we see is a good distribution of traffic between the two servers
-![jmeter result](imgRapport/4.0.3.png)
+![jmeter result](4.0.3.png)
 
 #### 4.2
 In this step we set the delay value of s1 to 250 ms with the following command:
@@ -163,12 +163,12 @@ In this step we set the delay value of s1 to 250 ms with the following command:
 Walid@DESKTOP-STMV1IC MINGW64 /c/Program Files/Docker Toolbox
 $ curl -H "Content-Type: application/json" -X POST -d '{"delay":250}' 192.168.99.100:4000/delay                         {"message":"New timeout of 250ms configured."}
 ```
-![250ms](imgRapport/4.2.png)
+![250ms](4.2.png)
 As we see this value is  enough to disturb our servers ,as well the most of traffic is balanced to s2 ,however s1 still taking place in the application to respond some requests, also we have a remarkable decrease of the performance.
 
 #### 4.3
 After we increased the delay of s1 to 2500 ms we get the following results :
-![2500ms](imgRapport/4.3.png)
+![2500ms](4.3.png)
 
 In this case the delay is much bigger than the previous one,so the server s1 is avoided by the most of requests .Jmeter shows that an average of 0.1% of traffic
 go through s1.
@@ -187,15 +187,16 @@ Then set the delay to 250 ms .
  need with  cookies  picture
 
  without cookies:
- ![without cookies](imgRapport/4.6.1.png)
+ ![without cookies ](4.6.1.png)
 
 The change is quite major, we can see that using cookies with a heavy weight and a slow server can drastically slow down the overall performance of our load balancer.
 
 ### Task 5
 #### 5.1
 We decided to implement the following strategies :
-- **leastconn** : This strategy will permit to choose the server with the least connections. A round-robin is used to choose the server within groups of server with the same load. We think that this strategy is interesting because we can always choose the server with the least connections and we can avoid that a server has 1000 connections because the users do not disconnect and a server that only has 10 connections because the users quit quickly. With this strategy we can be sure that the servers will have the same amount of connection and so we can balance fairly the servers.
-- **source** :
+- **leastconn** : This strategy will permit to choose the server with the least connections. A round-robin is used to choose the server within groups of server with the same load. We think that this strategy is interesting because we can always choose the server with the least connections and we can avoid that a server has 1000 connections because the users do not disconnect and a server that only has 10 connections because the users quit quickly. With this strategy we can be sure that the servers will have the same amount of connection and so we can balance fairly the servers.  
+The advantages of this strategy is that it is dynamc and the the weights of the server are adjusted on the fly.
+- **source** : This startegy will hash the IP adresse and divid it by the toal wight of the running servers to choose which server will receive the request. We decided to use this strategy because with this we can be sure that the same client IP will reach the same server as long as it is not down. So, in this case session stickness is not necessary if we wanted. The only problem in this case is that if a server goes down the client will contact a different server so it will be better to use sticky session.
 
 
 ### Conclusion

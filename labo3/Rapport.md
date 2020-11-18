@@ -1,4 +1,4 @@
-## AIT Lab 03 - Load balancing
+decrease## AIT Lab 03 - Load balancing
 
 **Author:** Müller Robin, Stéphane Teixeira Carvalho, Massaoudi Walid  
 **Date:** 2020-10-07
@@ -96,9 +96,106 @@ We can confirm the result also be watching the content of the last response of e
 
 
 ### Task 3
+#### 3.1
+We get the following page when we access the HAProxy statistics page:
+<img alt="3.1" src="./imgRapport/3.1.png" width="700" >
+
+As we can see in the nodes menu, under "Session rate", we are connected to the node s1.
+
+#### 3.2
+We started by setting the s1 node into drain with the following command:  
+`> set server nodes/s1 state drain`
+
+In the HAProxy page, we see that the node has been indeed put into drain mode:
+<img alt="3.2" src="./imgRapport/3.2.png" width="700" >
+
+
+#### 3.3
+After refreshing the page, we get the following result:   
+`{"hello":"world!","ip":"192.168.42.11","host":"39b872b37ed6","tag":"s1","sessionViews":34,"id":"u5uOH_iXc8vAZp3yu71dcOMIkfJUrRQk"}`
+
+We are still on the same node, and the session views are still being incremented. While in drain mode, only the new traffic is redirected to a new node. The active sessions continue to communicate with the same node.
+
+#### 3.4
+As expected, when opening a new browser, the connection is redirected to the node s2. We get the following result:  
+`{"hello":"world!","ip":"192.168.42.22","host":"cf4f8b90df17","tag":"s2","sessionViews":1,"id":"78oYzA7zknFo_9N0HwQn9gqE117u7ELA"}`
+
+#### 3.5
+However many times we clear the cookies, we are only reaching the s2 node. A new session id is generated on every connection and `sessionViews` is equals to one.  
+This is the expected outcome as the proxy has no way to recognize the client without the cookies, and the node in DRAIN mode does not accept new connections.
+
+#### 3.6
+We set the s1 node into ready mode with the following command:  
+`> set server nodes/s1 state ready`
+1. After refreshing the page, we stay on the same node, due to sticky sessions, and `sessionViews` is still being incremented.
+2. After opening a new browser, we were connected to the s2 node with `sessionViews` at 1.
+3. As we clear the cookies, the sticky sessions balancing cannot not work, hence we get a new session id and `sessionViews` equals one on every refresh.
+
+HAProxy stats page:  
+<img alt="3.6" src="./imgRapport/3.6.png" width="700" >
+
+#### 3.7
+We set the s1 node into maint mode with the following command:  
+`> set server nodes/s1 state maint`
+1. After refreshing the page, we are redirected to the s2 node. This is expected as maint mode redirects all connections. We get a new session id and `sessionViews` is 1.
+2. After opening a new browser, we were connected to the s2 node with `sessionViews` at 1.
+3. As we clear the cookies, we get a new session id and `sessionViews` equals one on every refresh. Due to the maintenance mode, all connections go through the s2 node.
+
+HAProxy stats page:  
+<img alt="3.7" src="./imgRapport/3.6.png" width="700" >
+
 
 ### Task 4
+First we gonna reset the value of the s1 delay to 0 (note that we use docker toolbox for this stage):
+![delay conf ](4.0.png)
+
+![conf jmeter](4.0.1.png)
+
+#### 4.1
+We need to set the management policy of cookies to be deleted with every iteration .
+![cookies](4.0.2.png)
+The result as we see is a good distribution of traffic between the two servers
+![jmeter result](4.0.3.png)
+
+#### 4.2
+In this step we set the delay value of s1 to 250 ms with the following command:
+```bash
+Walid@DESKTOP-STMV1IC MINGW64 /c/Program Files/Docker Toolbox
+$ curl -H "Content-Type: application/json" -X POST -d '{"delay":250}' 192.168.99.100:4000/delay                         {"message":"New timeout of 250ms configured."}
+```
+![250ms](4.2.png)
+As we see this value is  enough to disturb our servers ,as well the most of traffic is balanced to s2 ,however s1 still taking place in the application to respond some requests, also we have a remarkable decrease of the performance.
+
+#### 4.3
+After we increased the delay of s1 to 2500 ms we get the following results :
+![2500ms](4.3.png)
+
+In this case the delay is much bigger than the previous one,so the server s1 is avoided by the most of requests .Jmeter shows that an average of 0.1% of traffic
+go through s1.
+#### 4.4
+ There is no error in the two previous steps because  HAProxy redirects all requests from one server to another according to the round robin, however it waits for a response from the assigned server. In our case, it sends a request to S1 and while this one processes it, the S2 server will take care of all the following ones, then when S1 is available again After the long wait , it will take the next request if there is one .
+
+#### 4.5
+We need toadd the following lines to the conf file of HAProxy :
+```bash
+server s1 ${WEBAPP_1_IP}:3000 weight 2 check cookie s1
+server s2 ${WEBAPP_2_IP}:3000 weight 1 check cookie s2
+```
+Then set the delay to 250 ms .
+
+#### 4.6
+ need with  cookies  picture
+
+ without cookies:
+ ![without cookies ](4.6.1.png)
+
+The change is quite major, we can see that using cookies with a heavy weight and a slow server can drastically slow down the overall performance of our load balancer.
 
 ### Task 5
+#### 5.1
+We decided to implement the following strategies :
+- **leastconn** : This strategy will permit to choose the server with the least connections. A round-robin is used to choose the server within groups of server with the same load. We think that this strategy is interesting because we can always choose the server with the least connections and we can avoid that a server has 1000 connections because the users do not disconnect and a server that only has 10 connections because the users quit quickly. With this strategy we can be sure that the servers will have the same amount of connection and so we can balance fairly the servers.
+- **source** :
+
 
 ### Conclusion

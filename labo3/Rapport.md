@@ -195,8 +195,41 @@ The change is quite major, we can see that using cookies with a heavy weight and
 #### 5.1
 We decided to implement the following strategies :
 - **leastconn** : This strategy will permit to choose the server with the least connections. A round-robin is used to choose the server within groups of server with the same load. We think that this strategy is interesting because we can always choose the server with the least connections and we can avoid that a server has 1000 connections because the users do not disconnect and a server that only has 10 connections because the users quit quickly. With this strategy we can be sure that the servers will have the same amount of connection and so we can balance fairly the servers.  
-The advantages of this strategy is that it is dynamc and the the weights of the server are adjusted on the fly.
-- **source** : This startegy will hash the IP adresse and divid it by the toal wight of the running servers to choose which server will receive the request. We decided to use this strategy because with this we can be sure that the same client IP will reach the same server as long as it is not down. So, in this case session stickness is not necessary if we wanted. The only problem in this case is that if a server goes down the client will contact a different server so it will be better to use sticky session.
+Another advantage of this strategy is that it is dynamic and the the weights of the server are adjusted on the fly.
+- **source** : This startegy will hash the IP adress and divid it by the total weight of the running servers to choose which server will receive the request. We decided to use this strategy because with this we can be sure that the same client IP will reach the same server as long as it is not down. So, in this case session stickness is not necessary if we wanted. The only problem if session stickness is not done is that if a server goes down the client will contact a different server so it will be better to use sticky session anyway.
+
+#### 5.2
+- **leastconn**  
+In the first place, we had to configure the server to have the lestconn algorithm :
+<img alt="5.2" src="./imgRapport/5.2_leastconn.PNG" width="700" >
+
+  Then we started a JMeter test with 3 users to see how the connections are handled :
+  <img alt="5.2" src="./imgRapport/5_2_leastconn.PNG" width="700" >
+
+  In the screenshot above we can see that the first server to handle the connection is s1 and so the next user will be connected to the s2 server and then the s1 will be called again because a roundrobin is used when servers have the same amount of connection.
+
+  To view a difference we have started a session that will be consistent for the server s1 and then we send request to the load-balancer :
+  <img alt="5.2" src="./imgRapport/5_2_leastconn_1.PNG" width="700" >
+
+  In this case the server s2 that has a delay of 0 will handle all the requests beacause it will always have the least connections
+
+- **source**  
+Like before we implemented the source algorithm in the haproxy.cfg file :
+  <img alt="5.2" src="./imgRapport/5.2_source.PNG" width="700" >
+
+  For this test we removed the session stickness to show the advantage of this algorithm.
+  For the JMeter test we kept 2 threads to show that if the same IP is used all the requests will go to the same server.
+  Here is the result for the source algorithm with JMeter :
+  <img alt="5.2" src="./imgRapport/5.2_source_2.PNG" width="700" >
+  <img alt="5.2" src="./imgRapport/5.2_source_1.PNG" width="700" >
+
+  As expected even if we have mutliple users connecting to the website the same server will handle all the requests from the users because they are connected in the smae machine so the same IP adress.
+
+
+
+#### 5.3
+We think taht for this lab the best strategy is the least
+
 
 
 ### Conclusion

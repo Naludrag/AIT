@@ -1,11 +1,11 @@
 ## AIT Lab 03 - Load balancing
 
 **Author:** Müller Robin, Stéphane Teixeira Carvalho, Massaoudi Walid  
-**Date:** 2020-10-07
+**Date:** 2020-12-02
 
 ### Introduction
 
-### Task 1
+### Task 1 : Install the tools
 #### 1.1
 When we open the browser the application create a cookie for the user with the server s1 for example.
 
@@ -200,18 +200,18 @@ Another advantage of this strategy is that it is dynamic and the the weights of 
 
 #### 5.2
 - **leastconn**  
-In the first place, we had to configure the server to have the lestconn algorithm :
+In the first place, we had to configure the server to have the leastconn algorithm :
 <img alt="5.2" src="./imgRapport/5.2_leastconn.PNG" width="700" >
 
   Then we started a JMeter test with 3 users to see how the connections are handled :
-  <img alt="5.2" src="./imgRapport/5_2_leastconn.PNG" width="700" >
+  <img alt="5.2" src="./imgRapport/5.2_leastconn_1.PNG" width="700" >
 
-  In the screenshot above we can see that the first server to handle the connection is s1 and so the next user will be connected to the s2 server and then the s1 will be called again because a roundrobin is used when servers have the same amount of connection.
+  In the screenshot above we can see that the first server to handle the connection is s1 and so the next user will be connected to the s2 server beacause the s2 server has the least connections. Then, s1 will be called again because a roundrobin is used when servers have the same amount of connection.
 
   To view a difference we have started a session that will be consistent for the server s1 and then we send request to the load-balancer :
-  <img alt="5.2" src="./imgRapport/5_2_leastconn_1.PNG" width="700" >
+  <img alt="5.2" src="./imgRapport/5.2_leastconn_2.PNG" width="700" >
 
-  In this case the server s2 that has a delay of 0 will handle all the requests beacause it will always have the least connections
+  In this case the server s2 that has a delay of 0 will handle all the requests beacause it will always have the least connections.
 
 - **source**  
 Like before we implemented the source algorithm in the haproxy.cfg file :
@@ -223,12 +223,16 @@ Like before we implemented the source algorithm in the haproxy.cfg file :
   <img alt="5.2" src="./imgRapport/5.2_source_2.PNG" width="700" >
   <img alt="5.2" src="./imgRapport/5.2_source_1.PNG" width="700" >
 
-  As expected even if we have mutliple users connecting to the website the same server will handle all the requests from the users because they are connected in the smae machine so the same IP adress.
+  As expected even if we have mutliple users connecting to the website the same server will handle all the requests from the users because they are connected with the same machine so the same IP adress.
 
 
 
 #### 5.3
-We think taht for this lab the best strategy is the least
+We think that for this lab the best strategy is the leastconn and we will explain why. The problem with the source algorithm is that for instance, if we have a server that will receive connections from the HEIG-VD we will have a problem beacuase all the students go on the internet with the same IP adress and so all the requests made by the students will be directed to the same server and we do not have a right balance between the servers or it could be a problem if the server cannot handle a lot of requests it cloud cause a DoS.
+
+With the leastconn we do not have this problem because the server will have the same amount of connections. In this case if we take a look at the same example the students of the HEIG-VD will not contact the same server because when creating a connection it will not redirect to the same server if another server as least connection.
+
+In the case of the lab, if we use the source algorithm we will only test one server because the ip adress is the local address and we will always contact or the s1 server or the s2 server. And so, we think that because of that the leastconn is more interesting because we will contact the two servers equally and we can test the 2 servers and not only one.
 
 
 

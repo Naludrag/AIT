@@ -147,15 +147,15 @@ HAProxy stats page:
 
 ### Task 4
 First we gonna reset the value of the s1 delay to 0 (note that we use docker toolbox for this stage):
-![delay conf ](4.0.png)
+![delay conf ](imgRapport/4.0.png)
 
-![conf jmeter](4.0.1.png)
+![conf jmeter](imgRapport/4.0.1.png)
 
 #### 4.1
 We need to set the management policy of cookies to be deleted with every iteration .
-![cookies](4.0.2.png)
+![cookies](imgRapport/4.0.2.png)
 The result as we see is a good distribution of traffic between the two servers
-![jmeter result](4.0.3.png)
+![jmeter result](imgRapport/4.0.3.png)
 
 #### 4.2
 In this step we set the delay value of s1 to 250 ms with the following command:
@@ -168,7 +168,7 @@ As we see this value is  enough to disturb our servers ,as well the most of traf
 
 #### 4.3
 After we increased the delay of s1 to 2500 ms we get the following results :
-![2500ms](4.3.png)
+![2500ms](imgRapport/4.3.png)
 
 In this case the delay is much bigger than the previous one,so the server s1 is avoided by the most of requests .Jmeter shows that an average of 0.1% of traffic
 go through s1.
@@ -187,7 +187,7 @@ Then set the delay to 250 ms .
  need with  cookies  picture
 
  without cookies:
- ![without cookies ](4.6.1.png)
+ ![without cookies ](imgRapport/4.6.1.png)
 
 The change is quite major, we can see that using cookies with a heavy weight and a slow server can drastically slow down the overall performance of our load balancer.
 

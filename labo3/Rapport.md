@@ -164,52 +164,24 @@ HAProxy stats page:
 
 
 ### Task 4 : Round robin in degraded mode
-<<<<<<< HEAD
-First we gonna reset the value of the s1 delay to 0 (note that we use docker toolbox for this stage):
-![delay conf ](./img/4.0.png)
-
-![conf jmeter](./img/4.0.1.png)
-
-#### 4.1
-We need to set the management policy of cookies to be deleted with every iteration .
-![cookies](./img/4.0.2.png)
-The result as we see is a good distribution of traffic between the two servers
-![jmeter result](./img/4.0.3.png)
-
-#### 4.2
-In this step we set the delay value of s1 to 250 ms with the following command:
-```bash
-Walid@DESKTOP-STMV1IC MINGW64 /c/Program Files/Docker Toolbox
-$ curl -H "Content-Type: application/json" -X POST -d '{"delay":250}' 192.168.99.100:4000/delay                         {"message":"New timeout of 250ms configured."}
-```
-![250ms](./img/4.2.png)
-As we see this value is enough to disturb our servers, as well the most of traffic is balanced to s2, however s1 still taking place in the application to respond some requests, also we have a remarkable decrease of the performance.
-
-#### 4.3
-After we increased the delay of s1 to 2500 ms we get the following results :
-![2500ms](./img/4.3.png)
-
-In this case the delay is much bigger than the previous one, so the server s1 is avoided by the most of requests. Jmeter shows that an average of 0.1% of traffic go through s1.
-=======
 
 #### 4.1
 First we gonna reset the value of the s1 delay to 0ms ,We will take the measurement by Jmeter at this stage as reference.
 The management policy of cookies to be conserved with every iteration .
-![reference](img/4.1.PNG)
+![reference](imgRapport/4.1.PNG)
 The result as we see is a good distribution of traffic between the two servers
 
 #### 4.2
 In this step we set the delay value of s1 to 250 ms.
-![250ms](img/4.2.PNG)
+![250ms](4.2.PNG)
 As we see this value is enough to disturb our servers. We have a remarkable decrease of the performance ,the throughput is decreased in s1 due the time taken by each request .
 
 #### 4.3
 After we increased the delay of s1 to 2500 ms we get the following results :
-![2500ms](img/4.3.PNG)
+![2500ms](imgRapport/4.3.PNG)
 
 In this case the delay is much bigger than the previous one,so the server s1 is avoided by the most of requests .Jmeter shows that S1 is not even reachable and all the traffic is redirected to s2.
 
->>>>>>> b35cf9bf43d7284a455f5feb6a15aec02131048d
 #### 4.4
  There is no error in the two previous steps, because  HAProxy redirects all requests from one server to another according to the round robin, however it waits for a response from the assigned server. In our case, it sends a request to S1 and while this one processes it, the S2 server will take care of all the following ones, then when S1 is available again after the long wait , it will take the next request if there is one .
 
@@ -219,24 +191,15 @@ We need to add the following lines to the conf file of HAProxy :
 server s1 ${WEBAPP_1_IP}:3000 weight 2 check cookie s1
 server s2 ${WEBAPP_2_IP}:3000 weight 1 check cookie s2
 ```
-<<<<<<< HEAD
-Then set the delay to 250 ms.
-=======
 Then set the delay to 250 ms .We can the see the following results
->>>>>>> b35cf9bf43d7284a455f5feb6a15aec02131048d
 
-![weight](img/4.5.PNG)
+![weight](imgRapport/4.5.PNG)
 
 With the previous configuration,  S1 took a higher weight ,so it  handles a greater workload. The time of execution is therefore even longer. An ideal solution would be to redirect less traffic to servers that are slower.
 
-<<<<<<< HEAD
- without cookies:
- ![without cookies ](./img/4.6.1.png)
-=======
 #### 4.6
  The following picture shows the results of Jmeter after clearing the cookies with every iteration.  
- ![without cookies ](img/4.6.PNG)
->>>>>>> b35cf9bf43d7284a455f5feb6a15aec02131048d
+ ![without cookies ](imgRapport/4.6.PNG)
 
 The change is quite major.We see that more load is processed by the faster node or we can say the available one. This is due to the concurrent session limit on each node.The node cannot process more than a limited  simultaneous sessions and in our case it takes 250 ms before responding. The Proxy server HAProxy  will therefore send the requests that coming to a node which is available in this case the S2 node.
 

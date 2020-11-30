@@ -5,6 +5,9 @@
 
 ### Introduction
 
+In this laboratory, we will configure a load-balancer with different modes like sticky sessions or drain. We will also look at the results with the different modes. We will also look at what happens when a server is lower than another. In the end, we will look at two new algorithm and compare them by showing results and choose the most suitable for the laboratory.
+
+
 ### Task 1 : Install the tools
 #### 1.1
 After starting the different containers using docker compose, when we open the browser we can see the following result :
@@ -55,7 +58,7 @@ We can also see a different behavior from the session handling :
 
 This time because we communicate with the same server we did not change our session id and the sessionView variable incremented as expected.
 
-### Task 2
+### Task 2 : Sticky sessions
 #### 2.1
 The difference between the two ways of implementing sticky sessions is mainly the creator of the parameters. In the first case with the SERVERID the HAProxy will handle it so the id of the server will be added to the response of the server by the proxy to track which server responded. The SERVERID will only be seen by the HAProxy, the servers will not see it has it will be a parameter in the http header in the cookie section.
 Here is a diagram of the situation :
@@ -110,7 +113,7 @@ We can confirm the result also be watching the content of the last response of e
 <img alt="Test 1" src="./img/2.6_2.PNG" width="700" >
 
 
-### Task 3
+### Task 3 : Drain mode
 #### 3.1
 We get the following page when we access the HAProxy statistics page:
 <img alt="3.1" src="./img/3.1.png" width="700" >
@@ -160,7 +163,7 @@ HAProxy stats page:
 <img alt="3.7" src="./img/3.7.png" width="700" >
 
 
-### Task 4
+### Task 4 : Round robin in degraded mode
 <<<<<<< HEAD
 First we gonna reset the value of the s1 delay to 0 (note that we use docker toolbox for this stage):
 ![delay conf ](./img/4.0.png)
@@ -237,7 +240,7 @@ With the previous configuration,  S1 took a higher weight ,so it  handles a grea
 
 The change is quite major.We see that more load is processed by the faster node or we can say the available one. This is due to the concurrent session limit on each node.The node cannot process more than a limited  simultaneous sessions and in our case it takes 250 ms before responding. The Proxy server HAProxy  will therefore send the requests that coming to a node which is available in this case the S2 node.
 
-### Task 5
+### Task 5 :  Balancing strategies
 #### 5.1
 We decided to implement the following strategies :
 - **leastconn** : This strategy will permit to choose the server with the least connections. A round-robin is used to choose the server within groups of server with the same load. We think that this strategy is interesting because we can always choose the server with the least connections and we can avoid that a server has 1000 connections because the users do not disconnect and a server that only has 10 connections because the users quit quickly. With this strategy we can be sure that the servers will have the same amount of connections and so we can balance fairly the servers.  
@@ -276,10 +279,11 @@ Like before we implemented the source algorithm in the haproxy.cfg file :
 #### 5.3
 We think that for this lab the best strategy is the leastconn and we will explain why. The problem with the source algorithm is that for instance, if we have a server that will receive connections from the HEIG-VD we will have a problem beacause all the students go on the internet with the same IP adress and so all the requests made by the students will be directed to the same server and we do not have a right balance between the servers. This could lead to a problem if the server cannot handle a lot of requests it cloud cause a DoS for instance.
 
-With the leastconn we do not have this problem because the server will have the same amount of connections. In this case if we take a look at the same example the students of the HEIG-VD will not contact the same server because when creating a connection it will not redirect to the same server if another server as least connection.
+With the leastconn we do not have this problem because the server will have the same amount of connections. In this case, if we take a look at the same example the students of the HEIG-VD will not contact the same server because when creating a connection it will not redirect to the same server if another server as least connection.
 
 In the case of the lab, if we use the source algorithm we will only test one server because the ip adress is the local address and we will always contact or the s1 server or the s2 server. And so, we think that because of that the leastconn is more interesting because we will contact the two servers equally and we can test the 2 servers and not only one.
 
-
-
 ### Conclusion
+To conlude, we found this laboratory interesting because we could practice the theory seen in the course. It was also interesting to see what can happen if a load-balancer does have a slower server or if the session stickness is not enbale. Seeing mutliple balancing strategies and to choose between them as also a interesting point in the laboratory.
+
+Finally, we are happy with the result that we have and we think that we completed the laboratory successfully.

@@ -173,7 +173,7 @@ The result as we see is a good distribution of traffic between the two servers
 
 #### 4.2
 In this step we set the delay value of s1 to 250 ms.
-![250ms](4.2.PNG)
+![250ms](imgRapport/4.2.PNG)
 As we see this value is enough to disturb our servers. We have a remarkable decrease of the performance ,the throughput is decreased in s1 due the time taken by each request .
 
 #### 4.3

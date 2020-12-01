@@ -176,9 +176,9 @@ The management policy of cookies to be conserved with every iteration .
 The result as we see is a good distribution of traffic between the two servers
 
 #### 4.2
-In this step we set the delay value of s1 to 250 ms.
+In this step we set the delay value of s1 to 250 ms. With the command : `curl -H "Content-Type: application/json" -X POST -d '{"delay": 250}' http://<containerIp>:3000/delay`.
 ![250ms](img/4.2.png)
-As we see this value is enough to disturb our servers. We have a remarkable decrease of the performance, the throughput is decreased in s1 due the time taken by each request, mostly caused by the delay.
+As we see, this value is enough to disturb our servers. We have a remarkable decrease of the performance, the throughput is decreased in s1 due the time taken by each request, mostly caused by the delay.
 
 #### 4.3
 After we increased the delay of s1 to 2500 ms we get the following results :
@@ -205,7 +205,7 @@ With the previous configuration, S1 has a higher weight, so it handles a greater
  The following picture shows the results of Jmeter after clearing the cookies with every iteration.  
  ![without cookies ](img/4.6.PNG)
 
-The change is quite major. We see that more load is processed by the faster node or we can say the available one. This is due to the concurrent session limit on each node.The node cannot process more than a limited  simultaneous sessions and in our case it takes 250 ms before responding. The Proxy server HAProxy will therefore send the incoming requests to a node which is available in this case the S2 node.
+The change is quite major. We see that more load is processed by the faster node or we can say the available one. This is due to the concurrent session limit on each node. The node cannot process more than a limited simultaneous sessions and in our case it takes 250 ms before responding so it will handle simultaneous sessions and reach the limit. The Proxy server HAProxy will therefore send the requests that are coming to a node which is available in this case the S2 node.
 
 
 ### Task 5 :  Balancing strategies

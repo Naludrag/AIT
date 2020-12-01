@@ -166,24 +166,24 @@ HAProxy stats page:
 ### Task 4 : Round robin in degraded mode
 
 #### 4.1
-First we gonna reset the value of the s1 delay to 0ms ,We will take the measurement by Jmeter at this stage as reference.
+First we are going to reset the value of the s1 delay to 0ms. We will take a measurement with Jmeter at this stage as a reference.
 The management policy of cookies to be conserved with every iteration .
 ![reference](img/4.1.PNG)
 The result as we see is a good distribution of traffic between the two servers
 
 #### 4.2
 In this step we set the delay value of s1 to 250 ms.
-![250ms](img/4.2.PNG)
-As we see this value is enough to disturb our servers. We have a remarkable decrease of the performance ,the throughput is decreased in s1 due the time taken by each request .
+![250ms](img/4.2.png)
+As we see this value is enough to disturb our servers. We have a remarkable decrease of the performance, the throughput is decreased in s1 due the time taken by each request, mostly caused by the delay.
 
 #### 4.3
 After we increased the delay of s1 to 2500 ms we get the following results :
-![2500ms](img/4.3.PNG)
+![2500ms](img/4.3.png)
 
-In this case the delay is much bigger than the previous one,so the server s1 is avoided by the most of requests .Jmeter shows that S1 is not even reachable and all the traffic is redirected to s2.
+In this case the delay is much bigger than the previous one, so the server s1 is avoided by the most of the requests. Jmeter shows that, in fact, s1 is not even reachable and all the traffic is redirected to s2.
 
 #### 4.4
- There is no error in the two previous steps, because  HAProxy redirects all requests from one server to another according to the round robin, however it waits for a response from the assigned server. In our case, it sends a request to S1 and while this one processes it, the S2 server will take care of all the following ones, then when S1 is available again after the long wait , it will take the next request if there is one .
+ There is no error in the two previous steps, because  HAProxy redirects all requests from one server to another according to the round robin, however it waits for a response from the assigned server. In our case, it sends a request to S1 and while this one processes it, the S2 server will take care of all the following ones, then when S1 is available again after the long wait, it will take the next request if there is one.
 
 #### 4.5
 We need to add the following lines to the conf file of HAProxy :
@@ -191,17 +191,18 @@ We need to add the following lines to the conf file of HAProxy :
 server s1 ${WEBAPP_1_IP}:3000 weight 2 check cookie s1
 server s2 ${WEBAPP_2_IP}:3000 weight 1 check cookie s2
 ```
-Then set the delay to 250 ms .We can the see the following results
+Then set the delay to 250 ms. We can the see the following results
 
 ![weight](img/4.5.PNG)
 
-With the previous configuration,  S1 took a higher weight ,so it  handles a greater workload. The time of execution is therefore even longer. An ideal solution would be to redirect less traffic to servers that are slower.
+With the previous configuration, S1 has a higher weight, so it handles a greater workload. The time of execution is therefore even longer. An ideal solution would be to redirect less traffic to servers that are slower.
 
 #### 4.6
  The following picture shows the results of Jmeter after clearing the cookies with every iteration.  
  ![without cookies ](img/4.6.PNG)
 
-The change is quite major.We see that more load is processed by the faster node or we can say the available one. This is due to the concurrent session limit on each node.The node cannot process more than a limited  simultaneous sessions and in our case it takes 250 ms before responding. The Proxy server HAProxy  will therefore send the requests that coming to a node which is available in this case the S2 node.
+The change is quite major. We see that more load is processed by the faster node or we can say the available one. This is due to the concurrent session limit on each node.The node cannot process more than a limited  simultaneous sessions and in our case it takes 250 ms before responding. The Proxy server HAProxy will therefore send the incoming requests to a node which is available in this case the S2 node.
+
 
 ### Task 5 :  Balancing strategies
 #### 5.1
@@ -223,7 +224,7 @@ In the first place, we had to configure the server to have the leastconn algorit
   To view a difference we have started a session that will be consistent for the server s1 and then we send request to the load-balancer :
   <img alt="5.2" src="./img/5.2_leastconn_2.PNG" width="700" >
 
-  In this case the server s2 that has a delay of 0 will handle all the requests beacause it will always have the least connections.
+  In this case the server s2 that has a delay of 0 will handle all the requests because it will always have the least connections.
 
 - **source**  
 Like before we implemented the source algorithm in the haproxy.cfg file :
@@ -235,18 +236,18 @@ Like before we implemented the source algorithm in the haproxy.cfg file :
   <img alt="5.2" src="./img/5.2_source_2.PNG" width="700" >
   <img alt="5.2" src="./img/5.2_source_1.PNG" width="700" >
 
-  As expected even if we have mutliple users connecting to the website the same server will handle all the requests from the users because they are connected with the same machine so the same IP adress.
+  As expected even if we have multiple users connecting to the website the same server will handle all the requests from the users because they are connected with the same machine so the same IP address.
 
 
 
 #### 5.3
-We think that for this lab the best strategy is the leastconn and we will explain why. The problem with the source algorithm is that for instance, if we have a server that will receive connections from the HEIG-VD we will have a problem beacause all the students go on the internet with the same IP adress and so all the requests made by the students will be directed to the same server and we do not have a right balance between the servers. This could lead to a problem if the server cannot handle a lot of requests it cloud cause a DoS for instance.
+We think that for this lab the best strategy is the leastconn and we will explain why. The problem with the source algorithm is that for instance, if we have a server that will receive connections from the HEIG-VD we will have a problem because all the students go on the internet with the same IP address and so all the requests made by the students will be directed to the same server and we do not have a right balance between the servers. This could lead to a problem if the server cannot handle a lot of requests it could cause a DoS for instance.
 
-With the leastconn we do not have this problem because the server will have the same amount of connections. In this case, if we take a look at the same example the students of the HEIG-VD will not contact the same server because when creating a connection it will not redirect to the same server if another server as least connection.
+With the leastconn we do not have this problem because the server will have the same amount of connections. In this case, if we take a look at the same example, the students of the HEIG-VD will not contact the same server because when creating a connection it will not redirect to the same server if another server has a least amount connection.
 
-In the case of the lab, if we use the source algorithm we will only test one server because the ip adress is the local address and we will always contact or the s1 server or the s2 server. And so, we think that because of that the leastconn is more interesting because we will contact the two servers equally and we can test the 2 servers and not only one.
+In the case of the lab, if we use the source algorithm, we will only test one server because the ip address is the local address and we will always contact either the s1 server or the s2 server. And so, we think that because of that the leastconn is more interesting because we will contact the two servers equally and we can test the 2 servers and not only one.
 
 ### Conclusion
-To conlude, we found this laboratory interesting because we could practice the theory seen in the course. It was also interesting to see what can happen if a load-balancer does have a slower server or if the session stickness is not enbale. Seeing mutliple balancing strategies and to choose between them as also a interesting point in the laboratory.
+To conclude, we found this laboratory interesting because we could practice the theory seen in the course. It was also interesting to see what can happen if a load-balancer has a slower server or if the session stickness is not enabled. Seeing multiple balancing strategies and to choose between them is also an interesting point in the laboratory.
 
 Finally, we are happy with the result that we have and we think that we completed the laboratory successfully.

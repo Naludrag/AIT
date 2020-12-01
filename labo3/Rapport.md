@@ -34,7 +34,7 @@ If we continue to refresh the page we will always get a different NODESESSID as 
 It should keep the same session id even if the user refresh the page. For that, we should not speak with a different server, but with the same that created the session. We would like that because, the server that generated the session can validate the token given and so keep the right session. We should add Session Stickiness or use a different algorithm than roundrobin to have this behavior.
 
 #### 1.3
-<img alt="Test 1" src="./img/1.3.png" width="700" >
+<img alt="Test 1" src="./img/1.3.PNG" width="700" >
 
 The first request will go to the server s1. The server will then respond with a cookie related to the session created and the payload to show.
 The client will then store the cookie and in the next request send it with it. This time because we use the roundrobin we will send the request to the second server s2. The server will then see the request but the session passed is not known to him and so, in the response a new cookie will be sent with a new session for the server s2. The client will then store this new value and send it in the next request.

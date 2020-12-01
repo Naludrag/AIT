@@ -5,6 +5,9 @@
 
 ### Introduction
 
+In this laboratory, we will configure a load-balancer with different modes like sticky sessions or drain. We will also look at the results with the different modes. We will also look at what happens when a server is lower than another. In the end, we will look at two new algorithm and compare them by showing results and choose the most suitable for the laboratory.
+
+
 ### Task 1 : Install the tools
 #### 1.1
 After starting the different containers using docker compose, when we open the browser we can see the following result :
@@ -55,7 +58,7 @@ We can also see a different behavior from the session handling :
 
 This time because we communicate with the same server we did not change our session id and the sessionView variable incremented as expected.
 
-### Task 2
+### Task 2 : Sticky sessions
 #### 2.1
 The difference between the two ways of implementing sticky sessions is mainly the creator of the parameters. In the first case with the SERVERID the HAProxy will handle it so the id of the server will be added to the response of the server by the proxy to track which server responded. The SERVERID will only be seen by the HAProxy, the servers will not see it has it will be a parameter in the http header in the cookie section.
 Here is a diagram of the situation :
@@ -110,7 +113,7 @@ We can confirm the result also be watching the content of the last response of e
 <img alt="Test 1" src="./img/2.6_2.PNG" width="700" >
 
 
-### Task 3
+### Task 3 : Drain mode
 #### 3.1
 We get the following page when we access the HAProxy statistics page:
 <img alt="3.1" src="./img/3.1.png" width="700" >
@@ -160,34 +163,7 @@ HAProxy stats page:
 <img alt="3.7" src="./img/3.7.png" width="700" >
 
 
-### Task 4
-<<<<<<< HEAD
-First we gonna reset the value of the s1 delay to 0 (note that we use docker toolbox for this stage):
-![delay conf ](./img/4.0.png)
-
-![conf jmeter](./img/4.0.1.png)
-
-#### 4.1
-We need to set the management policy of cookies to be deleted with every iteration .
-![cookies](./img/4.0.2.png)
-The result as we see is a good distribution of traffic between the two servers
-![jmeter result](./img/4.0.3.png)
-
-#### 4.2
-In this step we set the delay value of s1 to 250 ms with the following command:
-```bash
-Walid@DESKTOP-STMV1IC MINGW64 /c/Program Files/Docker Toolbox
-$ curl -H "Content-Type: application/json" -X POST -d '{"delay":250}' 192.168.99.100:4000/delay                         {"message":"New timeout of 250ms configured."}
-```
-![250ms](./img/4.2.png)
-As we see this value is enough to disturb our servers, as well the most of traffic is balanced to s2, however s1 still taking place in the application to respond some requests, also we have a remarkable decrease of the performance.
-
-#### 4.3
-After we increased the delay of s1 to 2500 ms we get the following results :
-![2500ms](./img/4.3.png)
-
-In this case the delay is much bigger than the previous one, so the server s1 is avoided by the most of requests. Jmeter shows that an average of 0.1% of traffic go through s1.
-=======
+### Task 4 : Round robin in degraded mode
 
 #### 4.1
 First we gonna reset the value of the s1 delay to 0ms ,We will take the measurement by Jmeter at this stage as reference.
@@ -206,7 +182,6 @@ After we increased the delay of s1 to 2500 ms we get the following results :
 
 In this case the delay is much bigger than the previous one,so the server s1 is avoided by the most of requests .Jmeter shows that S1 is not even reachable and all the traffic is redirected to s2.
 
->>>>>>> b35cf9bf43d7284a455f5feb6a15aec02131048d
 #### 4.4
  There is no error in the two previous steps, because  HAProxy redirects all requests from one server to another according to the round robin, however it waits for a response from the assigned server. In our case, it sends a request to S1 and while this one processes it, the S2 server will take care of all the following ones, then when S1 is available again after the long wait , it will take the next request if there is one .
 
@@ -216,28 +191,19 @@ We need to add the following lines to the conf file of HAProxy :
 server s1 ${WEBAPP_1_IP}:3000 weight 2 check cookie s1
 server s2 ${WEBAPP_2_IP}:3000 weight 1 check cookie s2
 ```
-<<<<<<< HEAD
-Then set the delay to 250 ms.
-=======
 Then set the delay to 250 ms .We can the see the following results
->>>>>>> b35cf9bf43d7284a455f5feb6a15aec02131048d
 
 ![weight](img/4.5.PNG)
 
 With the previous configuration,  S1 took a higher weight ,so it  handles a greater workload. The time of execution is therefore even longer. An ideal solution would be to redirect less traffic to servers that are slower.
 
-<<<<<<< HEAD
- without cookies:
- ![without cookies ](./img/4.6.1.png)
-=======
 #### 4.6
  The following picture shows the results of Jmeter after clearing the cookies with every iteration.  
  ![without cookies ](img/4.6.PNG)
->>>>>>> b35cf9bf43d7284a455f5feb6a15aec02131048d
 
 The change is quite major.We see that more load is processed by the faster node or we can say the available one. This is due to the concurrent session limit on each node.The node cannot process more than a limited  simultaneous sessions and in our case it takes 250 ms before responding. The Proxy server HAProxy  will therefore send the requests that coming to a node which is available in this case the S2 node.
 
-### Task 5
+### Task 5 :  Balancing strategies
 #### 5.1
 We decided to implement the following strategies :
 - **leastconn** : This strategy will permit to choose the server with the least connections. A round-robin is used to choose the server within groups of server with the same load. We think that this strategy is interesting because we can always choose the server with the least connections and we can avoid that a server has 1000 connections because the users do not disconnect and a server that only has 10 connections because the users quit quickly. With this strategy we can be sure that the servers will have the same amount of connections and so we can balance fairly the servers.  
@@ -276,10 +242,11 @@ Like before we implemented the source algorithm in the haproxy.cfg file :
 #### 5.3
 We think that for this lab the best strategy is the leastconn and we will explain why. The problem with the source algorithm is that for instance, if we have a server that will receive connections from the HEIG-VD we will have a problem beacause all the students go on the internet with the same IP adress and so all the requests made by the students will be directed to the same server and we do not have a right balance between the servers. This could lead to a problem if the server cannot handle a lot of requests it cloud cause a DoS for instance.
 
-With the leastconn we do not have this problem because the server will have the same amount of connections. In this case if we take a look at the same example the students of the HEIG-VD will not contact the same server because when creating a connection it will not redirect to the same server if another server as least connection.
+With the leastconn we do not have this problem because the server will have the same amount of connections. In this case, if we take a look at the same example the students of the HEIG-VD will not contact the same server because when creating a connection it will not redirect to the same server if another server as least connection.
 
 In the case of the lab, if we use the source algorithm we will only test one server because the ip adress is the local address and we will always contact or the s1 server or the s2 server. And so, we think that because of that the leastconn is more interesting because we will contact the two servers equally and we can test the 2 servers and not only one.
 
-
-
 ### Conclusion
+To conlude, we found this laboratory interesting because we could practice the theory seen in the course. It was also interesting to see what can happen if a load-balancer does have a slower server or if the session stickness is not enbale. Seeing mutliple balancing strategies and to choose between them as also a interesting point in the laboratory.
+
+Finally, we are happy with the result that we have and we think that we completed the laboratory successfully.
